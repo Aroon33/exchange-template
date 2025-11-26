@@ -4,262 +4,17 @@
   <meta charset="UTF-8" />
   <title>CryptoX Exchange - 新規口座開設キャンペーン（デモ）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    :root {
-      --bg: #f5f7fb;
-      --bg-soft: #ffffff;
-      --primary: #1652f0;
-      --primary-soft: #e5edff;
-      --text-main: #1f2933;
-      --text-muted: #7b8794;
-      --border-soft: #e4e7eb;
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    body {
-      background: #f5f7fb;
-      color: var(--text-main);
-    }
-    a { text-decoration: none; color: inherit; }
 
-    header {
-      background: #ffffff;
-      border-bottom: 1px solid var(--border-soft);
-      padding: 10px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 20;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 700;
-      font-size: 20px;
-    }
-    .logo-badge {
-      width: 24px;
-      height: 24px;
-      border-radius: 8px;
-      background: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 14px;
-    }
-    nav {
-      display: flex;
-      gap: 16px;
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-    .nav-link.active {
-      color: var(--primary);
-      font-weight: 600;
-    }
-    .header-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    .btn {
-      border-radius: 999px;
-      padding: 7px 14px;
-      font-size: 13px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      background: transparent;
-    }
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-    .btn-outline {
-      border-color: var(--border-soft);
-      color: var(--text-main);
-      background: #fff;
-    }
-    .btn-sm { padding: 4px 10px; font-size: 12px; }
-
-    main {
-      max-width: 920px;
-      margin: 0 auto;
-      padding: 24px 20px 32px;
-    }
-
-    .hero {
-      background: linear-gradient(135deg, #1652f0, #1d8ff0);
-      border-radius: 16px;
-      color: #fff;
-      padding: 18px 18px 16px;
-      margin-bottom: 20px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      gap: 16px;
-      align-items: center;
-    }
-    @media (max-width: 780px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-    }
-    .hero-eyebrow {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      opacity: 0.9;
-      margin-bottom: 4px;
-    }
-    .hero-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    .hero-sub {
-      font-size: 12px;
-      opacity: 0.95;
-      line-height: 1.6;
-      margin-bottom: 10px;
-    }
-    .hero-meta {
-      font-size: 11px;
-      opacity: 0.9;
-    }
-    .hero-right {
-      background: rgba(15,23,42,0.24);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 12px;
-    }
-    .hero-right h3 {
-      font-size: 13px;
-      margin-bottom: 4px;
-    }
-    .hero-list {
-      list-style: none;
-      margin-top: 4px;
-      padding-left: 0;
-    }
-    .hero-list li::before {
-      content: "• ";
-    }
-
-    .section {
-      margin-bottom: 20px;
-      background: #ffffff;
-      border-radius: 14px;
-      border: 1px solid var(--border-soft);
-      padding: 14px 16px 12px;
-    }
-    .section-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-    .section-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-    table th,
-    table td {
-      padding: 6px 4px;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
-      vertical-align: top;
-    }
-    table th {
-      width: 26%;
-      font-weight: 600;
-      background: #f9fafb;
-    }
-
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      font-size: 12px;
-    }
-    @media (max-width: 780px) {
-      .steps {
-        grid-template-columns: 1fr;
-      }
-    }
-    .step-card {
-      border-radius: 10px;
-      border: 1px solid var(--border-soft);
-      padding: 10px 10px 9px;
-    }
-    .step-label {
-      font-size: 11px;
-      color: var(--primary);
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-    .step-title {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .faq-item {
-      margin-bottom: 8px;
-      font-size: 12px;
-    }
-    .faq-q {
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-    .faq-a {
-      color: var(--text-muted);
-    }
-
-    .btn-row {
-      margin-top: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .badge-outline {
-      display: inline-block;
-      border-radius: 999px;
-      border: 1px solid var(--primary-soft);
-      color: var(--primary);
-      padding: 2px 8px;
-      font-size: 11px;
-      margin-bottom: 4px;
-    }
-
-    footer {
-      padding: 16px 20px 24px;
-      font-size: 11px;
-      color: var(--text-muted);
-      text-align: center;
-    }
-  </style>
+  <!-- 外部CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  <header>
+  <header class="site-header">
     <div class="logo">
       <div class="logo-badge">CX</div>
       CryptoX Exchange
     </div>
-<nav>
+    <nav class="site-nav">
       <a href="index.html" class="nav-link">TOP</a>
       <a href="exchange.html" class="nav-link">トレード</a>
       <a href="wallet.html" class="nav-link">ウォレット</a>
@@ -267,7 +22,8 @@
       <a href="support.html" class="nav-link">サポート</a>
       <a href="mypage.html" class="nav-link">マイページ</a>
       <a href="kyc.html" class="nav-link">KYC</a>
-      <a href="history.html" class="nav-link active">取引履歴</a>
+      <a href="history.html" class="nav-link">取引履歴</a>
+      <a href="campaign.html" class="nav-link active">キャンペーン</a>
     </nav>
     <div class="header-actions">
       <a href="login.html" class="btn btn-outline btn-sm">ログイン</a>
@@ -275,9 +31,9 @@
     </div>
   </header>
 
-  <main>
+  <main class="campaign-main">
     <!-- Hero -->
-    <section class="hero">
+    <section class="hero campaign-hero">
       <div>
         <div class="hero-eyebrow">CAMPAIGN (DEMO)</div>
         <h1 class="hero-title">新規口座開設 & 初回入金キャンペーン</h1>
@@ -367,8 +123,7 @@
           <div class="step-label">STEP 1</div>
           <div class="step-title">口座開設</div>
           <p>
-            <a href="signup.html" style="color:var(--primary);">口座開設フォーム</a> から、
-            メールアドレス・パスワード・基本情報を入力し、口座開設を完了させます。
+            <a href="signup.html" style="color:var(--primary);">口座開設フォーム</a> から、メールアドレス・パスワード・基本情報を入力し、口座開設を完了させます。
           </p>
         </div>
         <div class="step-card">
@@ -398,17 +153,20 @@
 
     <!-- FAQ -->
     <section class="section">
-      <div class="badge-outline">FAQ（よくあるご質問イメージ）</div>
+      <span class="badge-outline">FAQ（よくあるご質問イメージ）</span>
+
       <div class="faq-item">
         <div class="faq-q">Q. 実際にこのキャンペーンは実施されていますか？</div>
         <div class="faq-a">A. いいえ。本ページは UI・レイアウト確認用のデモです。</div>
       </div>
+
       <div class="faq-item">
         <div class="faq-q">Q. 特典内容や条件は自由に変更できますか？</div>
         <div class="faq-a">
           A. はい。テーブルの文言と金額・日付を差し替えるだけで、別キャンペーンにも転用できます。
         </div>
       </div>
+
       <div class="faq-item">
         <div class="faq-q">Q. 規約ページやPDFリンクを追加することは可能ですか？</div>
         <div class="faq-a">
@@ -423,3 +181,4 @@
   </footer>
 </body>
 </html>
+

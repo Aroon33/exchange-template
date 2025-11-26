@@ -4,219 +4,10 @@
   <meta charset="UTF-8" />
   <title>CryptoX Admin - 出金申請管理</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    :root {
-      --bg: #f3f4f6;
-      --bg-soft: #ffffff;
-      --primary: #1652f0;
-      --primary-soft: #e5edff;
-      --text-main: #111827;
-      --text-muted: #6b7280;
-      --border-soft: #e5e7eb;
-      --danger: #dc2626;
-      --success: #16a34a;
-      --pending: #f97316;
-    }
-    * { box-sizing:border-box; margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-    body{ background:var(--bg); color:var(--text-main); }
-    a{ text-decoration:none; color:inherit; }
 
-    .admin-header {
-      position:fixed; top:0; left:0; right:0;
-      height:52px; background:#fff;
-      border-bottom:1px solid var(--border-soft);
-      display:flex; align-items:center; justify-content:space-between;
-      padding:0 18px 0 60px; z-index:30;
-    }
-    .admin-header-left{ display:flex; align-items:center; gap:10px; }
-    .logo-badge{
-      width:26px; height:26px; border-radius:8px;
-      background:var(--primary); color:#fff;
-      display:flex; align-items:center; justify-content:center;
-      font-size:14px; font-weight:700;
-    }
-    .logo-text{ font-weight:700; font-size:16px; }
-    .logo-sub{ font-size:11px; color:var(--text-muted); }
-    .admin-header-right{ display:flex; align-items:center; gap:10px; font-size:11px; color:var(--text-muted); }
-    .btn{ border-radius:999px; padding:6px 12px; font-size:11px; border:1px solid transparent; background:transparent; cursor:pointer; }
-    .btn-outline{ border-color:var(--border-soft); background:#fff; color:var(--text-main); }
-    .btn-sm{ padding:4px 10px; font-size:11px; }
-
-    .sidebar{
-      position:fixed; top:0; left:0; bottom:0;
-      width:200px; background:#0f172a; color:#e5e7eb;
-      padding-top:52px; display:flex; flex-direction:column;
-      border-right:1px solid #020617; z-index:20;
-    }
-    .sidebar-title{ padding:10px 14px; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:#6b7280; }
-    .nav-list{ list-style:none; margin:0; padding:0 8px 12px; }
-    .nav-item{ margin-bottom:4px; }
-    .nav-link{
-      display:flex; align-items:center; gap:8px;
-      padding:7px 8px; border-radius:8px; font-size:12px;
-      color:#9ca3af; cursor:pointer;
-    }
-    .nav-link:hover{ background:rgba(148,163,184,0.15); color:#e5e7eb; }
-    .nav-link.active{
-      background:#111827; color:#e5e7eb;
-      border:1px solid rgba(129,140,248,0.5);
-    }
-    .nav-icon{ width:14px; text-align:center; font-size:12px; }
-    .sidebar-footer{
-      margin-top:auto; padding:10px 14px 12px;
-      font-size:11px; color:#6b7280;
-      border-top:1px solid rgba(31,41,55,0.9);
-    }
-
-    .main{ margin-left:200px; padding-top:52px; }
-    .main-inner{ max-width:1120px; margin:0 auto; padding:16px 18px 24px; }
-    .page-title{ font-size:16px; font-weight:600; margin-bottom:4px; }
-    .page-sub{ font-size:11px; color:var(--text-muted); margin-bottom:10px; }
-
-    .filters-card{
-      background:#fff; border-radius:10px; border:1px solid var(--border-soft);
-      padding:10px 12px 8px; box-shadow:0 1px 2px rgba(15,23,42,0.03);
-      margin-bottom:10px;
-    }
-    .filters-row{
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:8px;
-    }
-    .filters-title{ font-size:13px; font-weight:600; }
-    .filters-meta{ font-size:11px; color:var(--text-muted); }
-    .filters-grid{
-      display:grid; grid-template-columns:minmax(0,0.9fr) minmax(0,0.7fr) minmax(0,0.6fr);
-      gap:8px;
-    }
-    @media(max-width:900px){ .filters-grid{ grid-template-columns:1fr; } }
-
-    .field{ display:flex; flex-direction:column; gap:2px; font-size:11px; }
-    .field label{ color:var(--text-muted); }
-    .field input,.field select{
-      border-radius:6px; border:1px solid var(--border-soft);
-      padding:6px 7px; font-size:11px; outline:none; background:#fff;
-    }
-    .field input:focus,.field select:focus{ border-color:var(--primary); }
-
-    .status-tabs{
-      display:inline-flex; border-radius:999px;
-      border:1px solid var(--border-soft); overflow:hidden; font-size:11px;
-    }
-    .status-tab-btn{
-      padding:4px 10px; border:none;
-      background:#fff; color:var(--text-muted);
-      cursor:pointer;
-    }
-    .status-tab-btn.active{ background:var(--primary); color:#fff; }
-
-    .pane-grid{
-      display:grid; grid-template-columns:minmax(0,0.9fr) minmax(0,1.3fr);
-      gap:10px;
-    }
-    @media(max-width:900px){ .pane-grid{ grid-template-columns:1fr; } }
-
-    .card{
-      background:#fff; border-radius:10px; border:1px solid var(--border-soft);
-      box-shadow:0 1px 2px rgba(15,23,42,0.03);
-      padding:10px 11px 9px; font-size:12px;
-    }
-    .card-header-row{
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:6px;
-    }
-    .card-title-small{ font-size:13px; font-weight:600; }
-    .card-sub-small{ font-size:11px; color:var(--text-muted); }
-
-    .list-box{
-      max-height:420px; overflow-y:auto;
-      border-radius:8px; border:1px solid #e5e7eb;
-      background:#f9fafb;
-    }
-    .item-row{
-      padding:7px 8px; border-bottom:1px solid #e5e7eb;
-      cursor:pointer; display:flex; justify-content:space-between;
-      align-items:flex-start; gap:8px; background:#fff;
-    }
-    .item-row:nth-child(2n){ background:#f9fafb; }
-    .item-row:last-child{ border-bottom:none; }
-    .item-row.active{ background:#eef2ff; border-left:3px solid var(--primary); }
-
-    .item-title{ font-size:12px; font-weight:600; margin-bottom:2px; }
-    .item-meta{ font-size:11px; color:var(--text-muted); }
-
-    .status-chip{
-      display:inline-flex; align-items:center;
-      border-radius:999px; padding:2px 8px;
-      font-size:10px; font-weight:500;
-    }
-    .status-pending{ background:#ffedd5; color:var(--pending); }
-    .status-completed{ background:#dcfce7; color:var(--success); }
-    .status-user_cancel,
-    .status-admin_cancel{ background:#fee2e2; color:var(--danger); }
-
-    .detail-header{
-      display:flex; justify-content:space-between; align-items:flex-start;
-      gap:8px; margin-bottom:6px;
-    }
-    .detail-title{ font-size:13px; font-weight:600; margin-bottom:2px; }
-    .detail-meta{ font-size:11px; color:var(--text-muted); }
-    .detail-meta span{ margin-right:8px; }
-
-    .status-select{
-      font-size:11px; padding:4px 6px;
-      border-radius:6px; border:1px solid var(--border-soft); outline:none;
-    }
-    .status-select:focus{ border-color:var(--primary); }
-
-    .info-grid{
-      display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:8px; margin-top:4px;
-    }
-    @media(max-width:800px){ .info-grid{ grid-template-columns:1fr; } }
-
-    .info-block{
-      border-radius:8px; border:1px solid var(--border-soft);
-      padding:8px 9px; background:#f9fafb;
-      font-size:11px;
-    }
-    .info-label{ font-size:11px; color:var(--text-muted); margin-bottom:3px; }
-    .info-value{ font-size:12px; font-weight:600; }
-    .wallet-row{ font-size:11px; margin-top:2px; }
-    .wallet-row span{ margin-right:8px; }
-
-    .toolbar{
-      display:flex; justify-content:flex-end; gap:6px; margin-top:8px;
-    }
-    .btn-xs{
-      padding:5px 10px; border-radius:999px;
-      font-size:11px; cursor:pointer;
-      border:1px solid var(--border-soft); background:#fff;
-    }
-    .btn-xs-primary{
-      background:var(--primary); color:#fff; border-color:var(--primary);
-    }
-
-    .note{ font-size:10px; color:var(--text-muted); margin-top:4px; }
-
-    .toast{
-      position:fixed; right:16px; bottom:16px;
-      background:#111827; color:#f9fafb;
-      padding:8px 14px; border-radius:999px;
-      font-size:11px; display:none; z-index:50;
-    }
-    .toast.show{ display:block; }
-
-    @media(max-width:768px){
-      .admin-header{ padding-left:54px; }
-      .sidebar{ width:180px; }
-      .main{ margin-left:180px; }
-    }
-    @media(max-width:640px){
-      .sidebar{ transform:translateX(-100%); }
-      .main{ margin-left:0; }
-      .admin-header{ padding-left:12px; }
-    }
-  </style>
+  <!-- 共通 + Admin 専用CSS -->
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
   <aside class="sidebar">
@@ -237,37 +28,41 @@
 
   <header class="admin-header">
     <div class="admin-header-left">
-      <div class="logo-badge">AX</div>
+      <div class="admin-logo-badge">AX</div>
       <div>
-        <div class="logo-text">Admin Console</div>
-        <div class="logo-sub">出金申請管理</div>
+        <div class="admin-logo-text">Admin Console</div>
+        <div class="admin-logo-sub">出金申請管理</div>
       </div>
     </div>
     <div class="admin-header-right">
       <span>管理者：admin@example.com</span>
-      <button class="btn btn-outline btn-sm" onclick="location.href='login.html'">ログアウト（デモ）</button>
+      <button class="btn btn-outline btn-sm" onclick="location.href='../login.html'">ログアウト（デモ）</button>
     </div>
   </header>
 
-  <main class="main">
-    <div class="main-inner">
+  <main class="admin-main">
+    <div class="admin-main-inner">
       <div class="page-title">出金申請管理</div>
       <div class="page-sub">
-        出金申請を確認し、「申請中」の間は利用可能残高をロックし、完了／キャンセル時に残高を更新するデモ画面です。
+        出金申請を確認し、「申請中」→「完了／キャンセル」で残高をどう変えるかのフローをデモします。<br>
+        （ローカルストレージベース。APIに置き換え可能な構造です）
       </div>
 
+      <!-- フィルタ -->
       <section class="filters-card">
         <div class="filters-row">
           <div>
             <div class="filters-title">フィルター</div>
-            <div class="filters-meta">ステータス・ユーザー・通貨・期間で出金申請を絞り込みます。</div>
+            <div class="filters-meta">
+              ステータス・ユーザーID・通貨・期間で出金申請を絞り込みます。
+            </div>
           </div>
           <div class="status-tabs">
             <button class="status-tab-btn active" data-status="all">すべて</button>
             <button class="status-tab-btn" data-status="pending">申請中</button>
             <button class="status-tab-btn" data-status="completed">完了</button>
-            <button class="status-tab-btn" data-status="user_cancel">ユーザーキャンセル</button>
-            <button class="status-tab-btn" data-status="admin_cancel">管理側キャンセル</button>
+            <button class="status-tab-btn" data-status="user_cancel">ユーザー取消</button>
+            <button class="status-tab-btn" data-status="admin_cancel">管理取消</button>
           </div>
         </div>
         <div class="filters-grid">
@@ -297,10 +92,11 @@
       </section>
 
       <section class="pane-grid">
+        <!-- 左：リスト -->
         <div class="card">
           <div class="card-header-row">
             <div>
-              <div class="card-title-small">出金申請一覧</div>
+              <div class="card-title-small">出金申請一覧（ローカルストレージ）</div>
               <div class="card-sub-small" id="list-count">0件</div>
             </div>
             <button class="btn-xs" id="btn-refresh">再読み込み</button>
@@ -308,12 +104,13 @@
           <div class="list-box" id="list-box"></div>
         </div>
 
+        <!-- 右：詳細 -->
         <div class="card">
           <div class="detail-header">
             <div>
               <div class="detail-title" id="detail-title">申請を選択してください</div>
               <div class="detail-meta" id="detail-meta">
-                左の一覧から出金申請を選択すると、詳細と残高ロック状況が表示されます。
+                左の一覧から出金申請を選択すると、詳細とロック残高が表示されます。
               </div>
             </div>
             <div>
@@ -330,7 +127,7 @@
           <div class="info-grid">
             <div class="info-block">
               <div class="info-label">申請情報</div>
-              <div class="info-value" id="info-user">-</div>
+              <div class="info-value" id="info-user">ユーザーID: -</div>
               <div class="wallet-row" id="info-amount">通貨: - / 金額: -</div>
               <div class="wallet-row" id="info-ids">ID: - / method: -</div>
             </div>
@@ -342,13 +139,16 @@
           </div>
 
           <div class="toolbar" id="toolbar" style="display:none;">
-            <button class="btn-xs btn-xs-primary" id="btn-apply-status">ステータスを更新（残高反映）</button>
+            <button class="btn-xs btn-xs-primary" id="btn-apply-status">
+              ステータスを更新（残高反映）
+            </button>
           </div>
+
           <div class="note">
-            ステータス遷移のルール（デモ）：<br>
-            ・申請中にすると <strong>利用可能残高が減少</strong>（ロック）<br>
-            ・申請中→完了で <strong>総残高を減少</strong>（利用可能はそのまま）<br>
-            ・申請中→キャンセル（ユーザー／管理側）で <strong>利用可能残高を元に戻す</strong>
+            ステータス遷移ルール（デモ）：<br>
+            ・pending → completed : 総残高を減少（利用可能はロック済み）<br>
+            ・pending → cancel : 利用可能残高を元に戻す<br>
+            ・その他の遷移はデモ用に簡略化しています。
           </div>
         </div>
       </section>
@@ -356,36 +156,34 @@
   </main>
 
   <div class="toast" id="toast"></div>
-
   <script>
-    const TRANSFER_KEY = "cx_transfers";
-    const WALLET_KEY = "cx_wallet_store";
+    const API_BASE = 'http://localhost:3000'; // APIドメインに合わせて変更
 
-    const fUser = document.getElementById("f-user");
-    const fCurrency = document.getElementById("f-currency");
-    const fFrom = document.getElementById("f-from");
-    const fTo = document.getElementById("f-to");
-    const listBoxEl = document.getElementById("list-box");
-    const listCountEl = document.getElementById("list-count");
-    const statusTabs = document.querySelectorAll(".status-tab-btn");
+    const listBoxEl      = document.getElementById("list-box");
+    const listCountEl    = document.getElementById("list-count");
+    const statusTabs     = document.querySelectorAll(".status-tab-btn");
     const statusSelectEl = document.getElementById("status-select");
-    const detailTitleEl = document.getElementById("detail-title");
-    const detailMetaEl = document.getElementById("detail-meta");
-    const infoUserEl = document.getElementById("info-user");
-    const infoAmountEl = document.getElementById("info-amount");
-    const infoIdsEl = document.getElementById("info-ids");
-    const walletTotalEl = document.getElementById("wallet-total");
-    const walletAvailableEl = document.getElementById("wallet-available");
+    const detailTitleEl  = document.getElementById("detail-title");
+    const detailMetaEl   = document.getElementById("detail-meta");
+    const infoUserEl     = document.getElementById("info-user");
+    const infoAmountEl   = document.getElementById("info-amount");
+    const infoIdsEl      = document.getElementById("info-ids");
+    const walletTotalEl  = document.getElementById("wallet-total");
+    const walletAvailEl  = document.getElementById("wallet-available");
     const btnApplyStatus = document.getElementById("btn-apply-status");
-    const btnRefresh = document.getElementById("btn-refresh");
-    const toolbarEl = document.getElementById("toolbar");
-    const toastEl = document.getElementById("toast");
+    const btnRefresh     = document.getElementById("btn-refresh");
+    const toolbarEl      = document.getElementById("toolbar");
+    const toastEl        = document.getElementById("toast");
 
-    let allTransfers = [];
-    let withdraws = [];
-    let filtered = [];
+    const fUser     = document.getElementById("f-user");
+    const fCurrency = document.getElementById("f-currency");
+    const fFrom     = document.getElementById("f-from");
+    const fTo       = document.getElementById("f-to");
+
+    let allWithdraws = [];
+    let filtered     = [];
+    let currentId    = null;
     let currentStatusFilter = "all";
-    let currentId = null;
 
     function showToast(msg) {
       toastEl.textContent = msg;
@@ -393,89 +191,95 @@
       setTimeout(() => toastEl.classList.remove("show"), 2200);
     }
 
-    function loadTransfers() {
-      try {
-        const raw = localStorage.getItem(TRANSFER_KEY);
-        if (!raw) return [];
-        const data = JSON.parse(raw);
-        return Array.isArray(data) ? data : [];
-      } catch (e) {
-        console.error(e);
-        return [];
-      }
+    function formatDate(iso) {
+      if (!iso) return "-";
+      return new Date(iso).toLocaleString("ja-JP", { hour12: false });
     }
 
-    function loadWalletStore() {
-      try {
-        const raw = localStorage.getItem(WALLET_KEY);
-        if (!raw) return {};
-        const data = JSON.parse(raw);
-        return data && typeof data === "object" ? data : {};
-      } catch (e) {
-        console.error(e);
-        return {};
-      }
-    }
-
-    function saveWalletStore(store) {
-      localStorage.setItem(WALLET_KEY, JSON.stringify(store));
-    }
-
-    function getWallet(store, userId, currency) {
-      if (!store[userId]) store[userId] = {};
-      if (!store[userId][currency]) {
-        store[userId][currency] = { total: 0, available: 0 };
-      }
-      return store[userId][currency];
-    }
-
-    function formatAmount(amount, currency) {
+    function formatAmount(amount) {
       if (amount == null) return "-";
-      if (currency === "JPY") {
-        return amount.toLocaleString("ja-JP") + " " + currency;
-      }
-      return amount.toLocaleString("en-US", {
-        minimumFractionDigits: 4,
+      const num = Number(amount);
+      if (isNaN(num)) return String(amount);
+      return num.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
         maximumFractionDigits: 8,
-      }) + " " + currency;
+      }) + " USDT";
     }
 
-    function statusLabelFor(s) {
-      switch (s) {
-        case "pending": return "申請中";
-        case "completed": return "完了";
-        case "user_cancel": return "ユーザーキャンセル";
-        case "admin_cancel": return "管理側キャンセル";
-        default: return s;
+    function statusLabelFor(status) {
+      switch (status) {
+        case "PENDING":   return "申請中";
+        case "COMPLETED": return "完了";
+        case "CANCELED":  return "キャンセル";
+        default:          return status;
       }
+    }
+
+    async function apiGet(path) {
+      const res = await fetch(API_BASE + path, { credentials: "include" });
+      if (!res.ok) throw new Error("GET " + path + " failed");
+      return res.json();
+    }
+
+    async function apiPost(path, body) {
+      const res = await fetch(API_BASE + path, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: body ? JSON.stringify(body) : "{}",
+      });
+      const txt = await res.text();
+      let json;
+      try { json = txt ? JSON.parse(txt) : {}; } catch { json = { raw: txt }; }
+      if (!res.ok) throw new Error("POST " + path + " failed");
+      return json;
+    }
+
+    async function loadWithdrawsFromApi() {
+      const data = await apiGet("/withdraw/pending");
+      allWithdraws = Array.isArray(data) ? data : [];
+      applyFilters();
     }
 
     function applyFilters() {
-      const uid = fUser.value.trim().toLowerCase();
+      const uid = fUser.value.trim();
       const cur = fCurrency.value;
-      const fromVal = fFrom.value;
-      const toVal = fTo.value;
+      const fromV = fFrom.value;
+      const toV   = fTo.value;
 
-      filtered = withdraws.filter((t) => {
-        if (currentStatusFilter !== "all" && t.status !== currentStatusFilter) {
-          return false;
+      filtered = allWithdraws.filter((t) => {
+        if (currentStatusFilter !== "all") {
+          if (currentStatusFilter === "pending"   && t.status !== "PENDING")   return false;
+          if (currentStatusFilter === "completed" && t.status !== "COMPLETED") return false;
+          if (currentStatusFilter === "user_cancel" || currentStatusFilter === "admin_cancel") {
+            if (t.status !== "CANCELED") return false;
+          }
         }
         if (uid) {
-          if (!t.userId || !t.userId.toLowerCase().includes(uid)) return false;
+          if (String(t.userId).indexOf(uid) === -1) return false;
         }
-        if (cur !== "all" && t.currency !== cur) return false;
-        if (fromVal) {
-          const fromTs = new Date(fromVal + "T00:00:00").getTime();
-          if ((t.createdAt || 0) < fromTs) return false;
+        if (cur !== "all") {
+          // currency 情報がないため、必要であればバックエンド拡張
+          return false;
         }
-        if (toVal) {
-          const toTs = new Date(toVal + "T23:59:59").getTime();
-          if ((t.createdAt || 0) > toTs) return false;
+        const ts = t.createdAt ? new Date(t.createdAt).getTime() : 0;
+        if (fromV) {
+          const fromTs = new Date(fromV + "T00:00:00").getTime();
+          if (ts < fromTs) return false;
+        }
+        if (toV) {
+          const toTs = new Date(toV + "T23:59:59").getTime();
+          if (ts > toTs) return false;
         }
         return true;
       });
 
-      filtered.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      filtered.sort((a, b) => {
+        const ta = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        const tb = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+        return tb - ta;
+      });
+
       renderList();
     }
 
@@ -495,30 +299,27 @@
         const div = document.createElement("div");
         div.className = "item-row" + (t.id === currentId ? " active" : "");
         div.dataset.id = t.id;
-        const created = t.createdAt
-          ? new Date(t.createdAt).toLocaleString("ja-JP", { hour12: false })
-          : "-";
-        const statusClass = "status-" + t.status;
-        const statusLabel = statusLabelFor(t.status);
 
         div.innerHTML = `
           <div>
-            <div class="item-title">${t.userId || "-"} / ${t.currency}</div>
+            <div class="item-title">User #${t.userId}</div>
             <div class="item-meta">
-              金額: ${formatAmount(t.amount, t.currency)}<br>
-              作成: ${created}
+              金額: ${formatAmount(t.amount)}<br>
+              作成: ${formatDate(t.createdAt)}
             </div>
           </div>
           <div style="text-align:right;">
-            <div class="status-chip ${statusClass}">${statusLabel}</div>
+            <div class="status-chip">${statusLabelFor(t.status)}</div>
             <div class="item-meta">ID: ${t.id}</div>
           </div>
         `;
+
         div.addEventListener("click", () => {
           currentId = t.id;
           renderList();
           renderDetail();
         });
+
         listBoxEl.appendChild(div);
       });
 
@@ -530,131 +331,64 @@
     }
 
     function renderDetail() {
-      const t = withdraws.find((x) => x.id === currentId);
-      const store = loadWalletStore();
-
+      const t = filtered.find((x) => x.id === currentId);
       if (!t) {
         detailTitleEl.textContent = "申請を選択してください";
-        detailMetaEl.textContent =
-          "左の一覧から出金申請を選択すると、詳細と残高ロック状況が表示されます。";
-        infoUserEl.textContent = "-";
-        infoAmountEl.textContent = "通貨: - / 金額: -";
-        infoIdsEl.textContent = "ID: - / method: -";
+        detailMetaEl.textContent  = "左の一覧から出金申請を選択すると詳細が表示されます。";
+        infoUserEl.textContent    = "ユーザーID: -";
+        infoAmountEl.textContent  = "通貨: - / 金額: -";
+        infoIdsEl.textContent     = "ID: -";
         walletTotalEl.textContent = "総残高: -";
-        walletAvailableEl.textContent = "利用可能残高: -";
-        statusSelectEl.disabled = true;
-        toolbarEl.style.display = "none";
+        walletAvailEl.textContent = "利用可能残高: -";
+        statusSelectEl.disabled   = true;
+        toolbarEl.style.display   = "none";
         return;
       }
 
-      detailTitleEl.textContent = `出金申請 ${t.id}`;
-      const created = t.createdAt
-        ? new Date(t.createdAt).toLocaleString("ja-JP", { hour12: false })
-        : "-";
-      const updated = t.updatedAt
-        ? new Date(t.updatedAt).toLocaleString("ja-JP", { hour12: false })
-        : "-";
+      detailTitleEl.textContent = `出金申請 ID: ${t.id}`;
       detailMetaEl.innerHTML =
-        `<span>ユーザーID: ${t.userId || "-"}</span>` +
-        `<span>作成: ${created}</span><br>` +
-        `<span>更新: ${updated}</span>`;
+        `<span>User ID: ${t.userId}</span>` +
+        `<span>Created: ${formatDate(t.createdAt)}</span><br>` +
+        `<span>Updated: ${formatDate(t.updatedAt)}</span>`;
 
-      infoUserEl.textContent = t.userId || "-";
-      infoAmountEl.textContent =
-        `通貨: ${t.currency} / 金額: ${formatAmount(t.amount, t.currency)}`;
-      infoIdsEl.textContent =
-        `ID: ${t.id} / method: ${t.method || "-"}`;
+      infoUserEl.textContent   = `ユーザーID: ${t.userId}`;
+      infoAmountEl.textContent = `通貨: USDT / 金額: ${formatAmount(t.amount)}`;
+      infoIdsEl.textContent    = `ID: ${t.id}`;
 
-      const w = getWallet(store, t.userId, t.currency);
-      walletTotalEl.textContent =
-        "総残高: " + formatAmount(w.total, t.currency);
-      walletAvailableEl.textContent =
-        "利用可能残高: " + formatAmount(w.available, t.currency);
+      walletTotalEl.textContent = "総残高: -";
+      walletAvailEl.textContent = "利用可能残高: -";
 
-      statusSelectEl.value = t.status;
+      statusSelectEl.value = "completed"; // or "admin_cancel" に変えてもOK
       statusSelectEl.disabled = false;
       toolbarEl.style.display = "block";
     }
 
-    function applyStatus() {
-      const t = withdraws.find((x) => x.id === currentId);
-      if (!t) return;
-
-      const newStatus = statusSelectEl.value;
-      const oldStatus = t.status;
-      if (oldStatus === newStatus) {
-        showToast("ステータスは変更されていません。");
+    async function applyStatus() {
+      const t = filtered.find((x) => x.id === currentId);
+      if (!t) {
+        showToast("申請が選択されていません。");
         return;
       }
+      const selected = statusSelectEl.value;
 
-      const store = loadWalletStore();
-      const w = getWallet(store, t.userId, t.currency);
-
-      // ロック適用フラグ
-      if (t.lockApplied == null) t.lockApplied = false;
-
-      // old→new の遷移に応じて残高を操作
-      if (oldStatus !== "pending" && newStatus === "pending") {
-        // pending になったタイミングで available をロック
-        w.available -= t.amount;
-        t.lockApplied = true;
-      } else if (oldStatus === "pending" && newStatus === "completed") {
-        // pending → completed : total を減少（available は既に減っている想定）
-        if (t.lockApplied) {
-          w.total -= t.amount;
-          t.lockApplied = false;
+      try {
+        if (selected === "completed") {
+          await apiPost("/withdraw/approve", { id: t.id });
+          showToast("出金申請を承認しました。");
+        } else if (selected === "user_cancel" || selected === "admin_cancel") {
+          await apiPost("/withdraw/cancel", { id: t.id });
+          showToast("出金申請をキャンセルしました。");
         } else {
-          // 念のため：ロックされていない場合は total と available 両方減らす
-          w.total -= t.amount;
-          w.available -= t.amount;
+          showToast("現在は完了/キャンセルのみAPI反映しています。");
+          return;
         }
-      } else if (oldStatus === "pending" &&
-                 (newStatus === "user_cancel" || newStatus === "admin_cancel")) {
-        // pending → キャンセル : available を元に戻す
-        if (t.lockApplied) {
-          w.available += t.amount;
-          t.lockApplied = false;
-        }
-      } else if (oldStatus === "completed" && newStatus === "pending") {
-        // 完了から再び pending に戻すケース（デモ用）
-        w.total += t.amount;
-        w.available -= t.amount;
-        t.lockApplied = true;
-      } else if (oldStatus === "completed" &&
-                 (newStatus === "user_cancel" || newStatus === "admin_cancel")) {
-        // completed → キャンセル（レアケース）：全額戻す
-        w.total += t.amount;
-        w.available += t.amount;
-        t.lockApplied = false;
+        await loadWithdrawsFromApi();
+      } catch (e) {
+        console.error(e);
+        showToast("ステータス更新に失敗しました。");
       }
-
-      t.status = newStatus;
-      t.updatedAt = Date.now();
-
-      saveWalletStore(store);
-      localStorage.setItem(TRANSFER_KEY, JSON.stringify(allTransfers));
-      showToast(`ステータスを「${statusLabelFor(newStatus)}」に更新し、残高を反映しました。`);
-
-      withdraws = allTransfers.filter((x) => x.type === "withdraw");
-      applyFilters();
     }
 
-    function initDates() {
-      const today = new Date();
-      const isoToday = today.toISOString().slice(0, 10);
-      const weekAgo = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
-      fTo.value = isoToday;
-      fFrom.value = weekAgo.toISOString().slice(0, 10);
-    }
-
-    function init() {
-      allTransfers = loadTransfers();
-      withdraws = allTransfers.filter((t) => t.type === "withdraw");
-      initDates();
-      applyFilters();
-    }
-
-    // イベント
     statusTabs.forEach((btn) => {
       btn.addEventListener("click", () => {
         statusTabs.forEach((b) => b.classList.remove("active"));
@@ -663,13 +397,37 @@
         applyFilters();
       });
     });
+
     [fUser, fCurrency, fFrom, fTo].forEach((el) =>
       el.addEventListener("change", applyFilters)
     );
-    btnApplyStatus.addEventListener("click", applyStatus);
-    btnRefresh.addEventListener("click", init);
 
-    init();
+    btnApplyStatus.addEventListener("click", applyStatus);
+    btnRefresh.addEventListener("click", () => {
+      loadWithdrawsFromApi().catch((e) => {
+        console.error(e);
+        showToast("出金一覧の読み込みに失敗しました。");
+      });
+    });
+
+    function initDates() {
+      const today = new Date();
+      const isoToday = today.toISOString().slice(0, 10);
+      const weekAgo  = new Date(today.getTime() - 6*24*60*60*1000);
+      fTo.value   = isoToday;
+      fFrom.value = weekAgo.toISOString().slice(0, 10);
+    }
+
+    (function init() {
+      initDates();
+      loadWithdrawsFromApi().catch((e) => {
+        console.error(e);
+        showToast("出金一覧の読み込みに失敗しました。");
+      });
+    })();
   </script>
+
+
 </body>
 </html>
+
