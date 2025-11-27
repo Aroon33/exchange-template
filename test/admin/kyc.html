@@ -4,10 +4,237 @@
   <meta charset="UTF-8" />
   <title>CryptoX Admin - KYC確認</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --bg-soft: #ffffff;
+      --primary: #1652f0;
+      --primary-soft: #e5edff;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --border-soft: #e5e7eb;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --pending: #f97316;
+    }
+    * { box-sizing:border-box; margin:0; padding:0;
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    body { background:var(--bg); color:var(--text-main); }
+    a { text-decoration:none; color:inherit; }
 
-  <!-- 共通 + Admin 専用CSS -->
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="stylesheet" href="../assets/css/admin.css">
+    /* Header */
+    .admin-header {
+      position:fixed; top:0; left:0; right:0;
+      height:52px; background:#fff;
+      border-bottom:1px solid var(--border-soft);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 18px 0 60px; z-index:30;
+    }
+    .admin-header-left { display:flex; align-items:center; gap:10px; }
+    .logo-badge {
+      width:26px; height:26px; border-radius:8px;
+      background:var(--primary); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-size:14px; font-weight:700;
+    }
+    .logo-text { font-weight:700; font-size:16px; }
+    .logo-sub { font-size:11px; color:var(--text-muted); }
+    .admin-header-right { display:flex; align-items:center; gap:10px;
+      font-size:11px; color:var(--text-muted); }
+    .btn {
+      border-radius:999px; padding:6px 12px;
+      font-size:11px; border:1px solid transparent;
+      background:transparent; cursor:pointer;
+    }
+    .btn-outline { border-color:var(--border-soft); background:#fff; color:var(--text-main); }
+    .btn-sm { padding:4px 10px; font-size:11px; }
+
+    /* Sidebar */
+    .sidebar {
+      position:fixed; top:0; left:0; bottom:0;
+      width:200px; background:#0f172a; color:#e5e7eb;
+      padding-top:52px; display:flex; flex-direction:column;
+      border-right:1px solid #020617; z-index:20;
+    }
+    .sidebar-title {
+      padding:10px 14px; font-size:11px;
+      text-transform:uppercase; letter-spacing:0.08em;
+      color:#6b7280;
+    }
+    .nav-list { list-style:none; margin:0; padding:0 8px 12px; }
+    .nav-item { margin-bottom:4px; }
+    .nav-link {
+      display:flex; align-items:center; gap:8px;
+      padding:7px 8px; border-radius:8px;
+      font-size:12px; color:#9ca3af; cursor:pointer;
+    }
+    .nav-link:hover { background:rgba(148,163,184,0.15); color:#e5e7eb; }
+    .nav-link.active {
+      background:#111827; color:#e5e7eb;
+      border:1px solid rgba(129,140,248,0.5);
+    }
+    .nav-icon { width:14px; text-align:center; font-size:12px; }
+    .sidebar-footer {
+      margin-top:auto; padding:10px 14px 12px;
+      font-size:11px; color:#6b7280;
+      border-top:1px solid rgba(31,41,55,0.9);
+    }
+
+    /* Main layout */
+    .main { margin-left:200px; padding-top:52px; }
+    .main-inner { max-width:1120px; margin:0 auto; padding:16px 18px 24px; }
+    .page-title { font-size:16px; font-weight:600; margin-bottom:4px; }
+    .page-sub { font-size:11px; color:var(--text-muted); margin-bottom:10px; }
+
+    /* Filters */
+    .filters-card {
+      background:#fff; border-radius:10px;
+      border:1px solid var(--border-soft);
+      padding:10px 12px 8px;
+      box-shadow:0 1px 2px rgba(15,23,42,0.03);
+      margin-bottom:10px;
+    }
+    .filters-row {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:8px;
+    }
+    .filters-title { font-size:13px; font-weight:600; }
+    .filters-meta { font-size:11px; color:var(--text-muted); }
+    .filters-grid {
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,0.8fr) minmax(0,0.8fr);
+      gap:8px;
+    }
+    @media(max-width:900px){ .filters-grid{ grid-template-columns:1fr; } }
+    .field {
+      display:flex; flex-direction:column; gap:2px;
+      font-size:11px;
+    }
+    .field label { color:var(--text-muted); }
+    .field input, .field select {
+      border-radius:6px; border:1px solid var(--border-soft);
+      padding:6px 7px; font-size:11px;
+      outline:none; background:#fff;
+    }
+    .field input:focus, .field select:focus { border-color:var(--primary); }
+
+    .btn-xs {
+      padding:4px 9px; border-radius:999px;
+      font-size:11px; border:1px solid var(--border-soft);
+      background:#fff; cursor:pointer;
+    }
+    .btn-xs-primary {
+      background:var(--primary); color:#fff; border-color:var(--primary);
+    }
+
+    /* Pane layout */
+    .pane-grid {
+      display:grid;
+      grid-template-columns:minmax(0,0.95fr) minmax(0,1.05fr);
+      gap:10px;
+    }
+    @media(max-width:900px){ .pane-grid{ grid-template-columns:1fr; } }
+
+    .card {
+      background:#fff; border-radius:10px;
+      border:1px solid var(--border-soft);
+      box-shadow:0 1px 2px rgba(15,23,42,0.03);
+      padding:10px 11px 9px; font-size:12px;
+    }
+    .card-header-row {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:6px;
+    }
+    .card-title-small { font-size:13px; font-weight:600; }
+    .card-sub-small { font-size:11px; color:var(--text-muted); }
+
+    .list-box {
+      max-height:420px; overflow-y:auto;
+      border-radius:8px; border:1px solid #e5e7eb;
+      background:#f9fafb;
+    }
+    .kyc-row {
+      padding:7px 8px; border-bottom:1px solid #e5e7eb;
+      cursor:pointer; display:grid;
+      grid-template-columns:minmax(0,1.2fr) minmax(0,0.8fr) minmax(0,0.8fr);
+      gap:4px 8px; align-items:center; background:#fff;
+      font-size:11px;
+    }
+    .kyc-row:nth-child(2n){ background:#f9fafb; }
+    .kyc-row:last-child{ border-bottom:none; }
+    .kyc-row.active{ background:#eef2ff; border-left:3px solid var(--primary); }
+
+    .user-name { font-size:12px; font-weight:600; }
+    .user-id { color:var(--text-muted); }
+
+    .badge {
+      border-radius:999px; padding:2px 8px;
+      font-size:10px; display:inline-flex;
+      align-items:center;
+    }
+    .badge-status-all_ng { background:#fee2e2; color:var(--danger); }
+    .badge-status-selfie_ng,
+    .badge-status-address_ng,
+    .badge-status-id_ng { background:#ffedd5; color:var(--pending); }
+    .badge-status-steps_ok,
+    .badge-status-all_ok { background:#dcfce7; color:var(--success); }
+
+    .detail-header {
+      display:flex; justify-content:space-between; align-items:flex-start;
+      gap:8px; margin-bottom:6px;
+    }
+    .detail-title { font-size:13px; font-weight:600; margin-bottom:2px; }
+    .detail-meta { font-size:11px; color:var(--text-muted); }
+    .detail-meta span{ margin-right:8px; }
+
+    .status-select {
+      font-size:11px; padding:4px 6px;
+      border-radius:6px; border:1px solid var(--border-soft);
+      outline:none;
+    }
+    .status-select:focus{ border-color:var(--primary); }
+
+    .info-grid {
+      display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px; margin-top:4px;
+    }
+    @media(max-width:800px){ .info-grid{ grid-template-columns:1fr; } }
+
+    .info-block {
+      border-radius:8px; border:1px solid var(--border-soft);
+      padding:8px 9px; background:#f9fafb; font-size:11px;
+    }
+    .info-label { font-size:11px; color:var(--text-muted); margin-bottom:3px; }
+    .info-value { font-size:12px; font-weight:600; }
+    .info-row { font-size:11px; margin-top:2px; }
+
+    .check-list { font-size:11px; margin-top:4px; }
+    .check-item { margin-bottom:3px; }
+
+    .toolbar {
+      display:flex; justify-content:flex-end; gap:6px; margin-top:8px;
+    }
+    .note { font-size:10px; color:var(--text-muted); margin-top:4px; }
+
+    .toast {
+      position:fixed; right:16px; bottom:16px;
+      background:#111827; color:#f9fafb;
+      padding:8px 14px; border-radius:999px;
+      font-size:11px; display:none; z-index:50;
+    }
+    .toast.show{ display:block; }
+
+    @media(max-width:768px){
+      .admin-header{ padding-left:54px; }
+      .sidebar{ width:180px; }
+      .main{ margin-left:180px; }
+    }
+    @media(max-width:640px){
+      .sidebar{ transform:translateX(-100%); }
+      .main{ margin-left:0; }
+      .admin-header{ padding-left:12px; }
+    }
+  </style>
 </head>
 <body>
   <!-- Sidebar -->
@@ -24,32 +251,30 @@
       <li class="nav-item"><a href="group.html" class="nav-link"><span class="nav-icon">🧩</span><span>グループ管理</span></a></li>
       <li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span><span>システム設定</span></a></li>
     </ul>
-    <div class="sidebar-footer">
-      CryptoX Admin<br>UI Demo &copy; 2025
-    </div>
+    <div class="sidebar-footer">CryptoX Admin<br>UI Demo &copy; 2025</div>
   </aside>
 
   <!-- Header -->
   <header class="admin-header">
     <div class="admin-header-left">
-      <div class="admin-logo-badge">AX</div>
+      <div class="logo-badge">AX</div>
       <div>
-        <div class="admin-logo-text">Admin Console</div>
-        <div class="admin-logo-sub">KYC確認</div>
+        <div class="logo-text">Admin Console</div>
+        <div class="logo-sub">KYC確認</div>
       </div>
     </div>
     <div class="admin-header-right">
       <span>管理者：admin@example.com</span>
-      <button class="btn btn-outline btn-sm" onclick="location.href='../login.html'">ログアウト（デモ）</button>
+      <button class="btn btn-outline btn-sm" onclick="location.href='login.html'">ログアウト（デモ）</button>
     </div>
   </header>
 
   <!-- Main -->
-  <main class="admin-main">
-    <div class="admin-main-inner">
+  <main class="main">
+    <div class="main-inner">
       <div class="page-title">KYC確認</div>
       <div class="page-sub">
-        提出された本人確認情報を確認し、6段階の判定ステータスを付与するための管理画面<br />
+        提出された本人確認情報を確認し、6段階の判定ステータスを付与するための管理画面（デモ）です。<br>
         ステータス：全てNG / セルフィーNG / 住所証明NG / 本人確認書類NG / 全てOK / 1〜5 OK
       </div>
 
@@ -94,7 +319,7 @@
         </div>
       </section>
 
-      <!-- List + Detail -->
+      <!-- List + detail -->
       <section class="pane-grid">
         <!-- List -->
         <div class="card">
@@ -154,7 +379,7 @@
             <button class="btn-xs btn-xs-primary" id="btn-apply">ステータスを更新</button>
           </div>
           <div class="note">
-            ※ このページはフロントエンドのみのデモです。<br />
+            ※ このページはフロントエンドのみのデモです。<br>
             実際の環境では、APIを通じてKYC審査結果をバックエンドへ保存し、ユーザーのKYCレベルと連動させる想定です。
           </div>
         </div>
@@ -174,7 +399,6 @@
       id_ng: "本人確認書類がNG",
       all_ok: "全てOK",
       steps_ok: "1〜5 OK",
-      pending: "未レビュー",
     };
 
     const levelLabels = {
@@ -183,34 +407,35 @@
       3: "レベル3",
     };
 
-    const listEl         = document.getElementById("kyc-list");
-    const listCountEl    = document.getElementById("list-count");
-    const toastEl        = document.getElementById("toast");
-    const fKeyword       = document.getElementById("f-keyword");
-    const fLevel         = document.getElementById("f-level");
-    const fStatus        = document.getElementById("f-status");
-    const btnSearch      = document.getElementById("btn-search");
-    const btnClear       = document.getElementById("btn-clear");
-    const btnRefresh     = document.getElementById("btn-refresh");
+    const listEl = document.getElementById("kyc-list");
+    const listCountEl = document.getElementById("list-count");
+    const toastEl = document.getElementById("toast");
 
-    const detailTitleEl  = document.getElementById("detail-title");
-    const detailMetaEl   = document.getElementById("detail-meta");
+    const fKeyword = document.getElementById("f-keyword");
+    const fLevel = document.getElementById("f-level");
+    const fStatus = document.getElementById("f-status");
+    const btnSearch = document.getElementById("btn-search");
+    const btnClear = document.getElementById("btn-clear");
+    const btnRefresh = document.getElementById("btn-refresh");
+
+    const detailTitleEl = document.getElementById("detail-title");
+    const detailMetaEl = document.getElementById("detail-meta");
     const statusSelectEl = document.getElementById("status-select");
-    const btnApply       = document.getElementById("btn-apply");
-    const toolbarEl      = document.getElementById("toolbar");
+    const btnApply = document.getElementById("btn-apply");
+    const toolbarEl = document.getElementById("toolbar");
 
-    const infoNameEl     = document.getElementById("info-name");
-    const infoUserIdEl   = document.getElementById("info-userid");
-    const infoEmailEl    = document.getElementById("info-email");
-    const infoLevelEl    = document.getElementById("info-level");
-    const infoCreatedEl  = document.getElementById("info-created");
-    const infoUpdatedEl  = document.getElementById("info-updated");
+    const infoNameEl = document.getElementById("info-name");
+    const infoUserIdEl = document.getElementById("info-userid");
+    const infoEmailEl = document.getElementById("info-email");
+    const infoLevelEl = document.getElementById("info-level");
+    const infoCreatedEl = document.getElementById("info-created");
+    const infoUpdatedEl = document.getElementById("info-updated");
 
-    const checkSelfieEl  = document.getElementById("check-selfie");
-    const checkIdEl      = document.getElementById("check-id");
+    const checkSelfieEl = document.getElementById("check-selfie");
+    const checkIdEl = document.getElementById("check-id");
     const checkAddressEl = document.getElementById("check-address");
 
-    let allKyc   = [];
+    let allKyc = [];
     let filtered = [];
     let currentId = null;
 
@@ -232,6 +457,7 @@
       }
     }
 
+    // ダミーデータ
     function seedKyc() {
       const now = Date.now();
       const data = [
@@ -254,7 +480,7 @@
           name: "Hanako Suzuki",
           email: "hanako@example.com",
           level: 1,
-          status: "pending",
+          status: "pending",   // 未判定用
           selfie: "PENDING",
           idDoc: "PENDING",
           address: "PENDING",
@@ -318,20 +544,9 @@
         row.className = "kyc-row" + (k.id === currentId ? " active" : "");
         row.dataset.id = k.id;
 
-        const stKey = k.status || "pending";
-        const badgeClass =
-          stKey === "all_ok" || stKey === "steps_ok"
-            ? "badge-status-all_ok"
-            : stKey === "selfie_ng"
-            ? "badge-status-selfie_ng"
-            : stKey === "address_ng"
-            ? "badge-status-address_ng"
-            : stKey === "id_ng"
-            ? "badge-status-id_ng"
-            : "badge-status-all_ng";
-
-        const label =
-          statusLabels[stKey] || (stKey === "pending" ? "未レビュー" : stKey);
+        const statusClass = "badge-status-" + (k.status || "pending");
+        const statusLabel =
+          statusLabels[k.status] || (k.status === "pending" ? "未レビュー" : k.status);
 
         row.innerHTML = `
           <div>
@@ -339,7 +554,9 @@
             <div class="user-id">${k.userId}</div>
           </div>
           <div>
-            <span class="badge ${badgeClass}">${label}</span>
+            <span class="badge badge-status-${k.status === "all_ok" || k.status === "steps_ok" ? "steps_ok" : k.status || "pending"}">
+              ${statusLabel}
+            </span>
           </div>
           <div class="user-id">
             ${levelLabels[k.level] || "-"}
@@ -368,44 +585,44 @@
         detailTitleEl.textContent = "申請を選択してください";
         detailMetaEl.textContent =
           "左の一覧から申請を選択すると、提出内容とステータスを確認できます。";
-        infoNameEl.textContent      = "-";
-        infoUserIdEl.textContent    = "ユーザーID: -";
-        infoEmailEl.textContent     = "メール: -";
-        infoLevelEl.textContent     = "申請レベル: -";
-        infoCreatedEl.textContent   = "申請日時: -";
-        infoUpdatedEl.textContent   = "最終更新: -";
-        checkSelfieEl.textContent   = "セルフィー: -";
-        checkIdEl.textContent       = "本人確認書類: -";
-        checkAddressEl.textContent  = "住所証明: -";
-        statusSelectEl.disabled     = true;
-        toolbarEl.style.display     = "none";
+        infoNameEl.textContent = "-";
+        infoUserIdEl.textContent = "ユーザーID: -";
+        infoEmailEl.textContent = "メール: -";
+        infoLevelEl.textContent = "申請レベル: -";
+        infoCreatedEl.textContent = "申請日時: -";
+        infoUpdatedEl.textContent = "最終更新: -";
+        checkSelfieEl.textContent = "セルフィー: -";
+        checkIdEl.textContent = "本人確認書類: -";
+        checkAddressEl.textContent = "住所証明: -";
+        statusSelectEl.disabled = true;
+        toolbarEl.style.display = "none";
         return;
       }
 
       detailTitleEl.textContent = `${k.name} のKYC申請`;
       const created = k.createdAt
-        ? new Date(k.createdAt).toLocaleString("ja-JP",{hour12:false})
+        ? new Date(k.createdAt).toLocaleString("ja-JP", { hour12: false })
         : "-";
       const updated = k.updatedAt
-        ? new Date(k.updatedAt).toLocaleString("ja-JP",{hour12:false})
+        ? new Date(k.updatedAt).toLocaleString("ja-JP", { hour12: false })
         : "-";
 
       detailMetaEl.innerHTML =
         `<span>ユーザーID: ${k.userId}</span>` +
         `<span>レベル: ${levelLabels[k.level] || "-"}</span>`;
 
-      infoNameEl.textContent    = k.name;
-      infoUserIdEl.textContent  = "ユーザーID: " + k.userId;
-      infoEmailEl.textContent   = "メール: " + (k.email || "-");
-      infoLevelEl.textContent   = "申請レベル: " + (levelLabels[k.level] || "-");
+      infoNameEl.textContent = k.name;
+      infoUserIdEl.textContent = "ユーザーID: " + k.userId;
+      infoEmailEl.textContent = "メール: " + (k.email || "-");
+      infoLevelEl.textContent = "申請レベル: " + (levelLabels[k.level] || "-");
       infoCreatedEl.textContent = "申請日時: " + created;
       infoUpdatedEl.textContent = "最終更新: " + updated;
 
-      checkSelfieEl.textContent  = "セルフィー: " + (k.selfie || "-");
-      checkIdEl.textContent      = "本人確認書類: " + (k.idDoc || "-");
+      checkSelfieEl.textContent = "セルフィー: " + (k.selfie || "-");
+      checkIdEl.textContent = "本人確認書類: " + (k.idDoc || "-");
       checkAddressEl.textContent = "住所証明: " + (k.address || "-");
 
-      statusSelectEl.value   = k.status && k.status !== "pending" ? k.status : "all_ng";
+      statusSelectEl.value = k.status === "pending" ? "all_ng" : (k.status || "all_ng");
       statusSelectEl.disabled = false;
       toolbarEl.style.display = "block";
     }
@@ -415,13 +632,11 @@
       if (!k) return;
       const newStatus = statusSelectEl.value;
       const oldStatus = k.status;
-
       if (oldStatus === newStatus) {
         showToast("ステータスは変更されていません。");
         return;
       }
-
-      k.status    = newStatus;
+      k.status = newStatus;
       k.updatedAt = Date.now();
 
       localStorage.setItem(KYC_KEY, JSON.stringify(allKyc));
@@ -430,11 +645,12 @@
       renderDetail();
     }
 
+    // Events
     btnSearch.addEventListener("click", applyFilters);
     btnClear.addEventListener("click", () => {
       fKeyword.value = "";
-      fLevel.value   = "all";
-      fStatus.value  = "all";
+      fLevel.value = "all";
+      fStatus.value = "all";
       applyFilters();
     });
     btnRefresh.addEventListener("click", () => {
@@ -443,9 +659,9 @@
     });
     btnApply.addEventListener("click", applyStatus);
 
+    // Init
     allKyc = loadKyc();
     applyFilters();
   </script>
 </body>
 </html>
-

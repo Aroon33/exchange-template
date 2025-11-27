@@ -34,202 +34,190 @@
   </div>
 </header>
 
-<main class="system-page">
+  <main>
+    <section class="card" style="max-width: 900px; margin: 24px auto;">
+      <h1 class="card-title">システム取引</h1>
+      <p class="card-sub">
+        現在の稼働グループ・システムステータス・口座残高・保有ポジションを表示します。
+      </p>
+      <p id="sys-message" class="muted" style="margin-bottom: 16px;"></p>
 
-  <!-- 左：設定 -->
-  <section class="card">
-    <div class="card-header">
-      <div class="card-title">システム取引設定</div>
-      <span class="badge">Demo</span>
-    </div>
-
-    <div class="switch-row">
-      <span style="font-size:13px;">システム取引（自動売買）</span>
-      <div class="switch" id="system-switch">
-        <div class="switch-knob"></div>
+      <div class="info-grid" style="margin-bottom: 16px;">
+        <div class="info-row">
+          <span class="info-label">グループID</span>
+          <span class="info-value" id="sys-group-id">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">システムステータス</span>
+          <span class="info-value" id="sys-status">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">合計口座残高</span>
+          <span class="info-value" id="sys-balance-total">0</span>
+        </div>
       </div>
-    </div>
 
-    <div class="form-row">
-      <label>対象シンボル</label>
-      <select id="system-symbol">
-        <option value="BTC/USD">BTC / USD</option>
-        <option value="ETH/USD">ETH / USD</option>
-        <option value="SOL/USD">SOL / USD</option>
-        <option value="DOGE/USD">DOGE / USD</option>
-      </select>
-    </div>
-
-    <div class="form-row">
-      <label>戦略テンプレート</label>
-      <select id="system-strategy">
-        <option value="rsi">RSI 30以下買い / 70以上売り</option>
-        <option value="ma">短期MAが長期MAを上抜けで買い</option>
-        <option value="grid">グリッドトレード</option>
-        <option value="break">ブレイクアウト</option>
-      </select>
-    </div>
-
-    <div class="form-row">
-      <label>最大ポジションサイズ</label>
-      <input type="number" id="system-max-position" placeholder="例: 0.5 BTC" />
-    </div>
-
-    <div class="form-row">
-      <label>損切り (%) ・ 利確 (%)</label>
-      <div style="display:flex; gap:8px;">
-        <input type="number" id="system-stop" placeholder="-5" />
-        <input type="number" id="system-take" placeholder="10" />
+      <div class="row-inline" style="margin-bottom: 16px; gap: 8px;">
+        <button id="sys-stop-btn" class="btn btn-outline">システム停止（ユーザー）</button>
+        <button id="sys-start-btn" class="btn btn-primary">システム再開（管理者専用）</button>
       </div>
-    </div>
 
-    <div class="form-row">
-      <label>注文上限（1日）</label>
-      <input type="number" id="system-max-orders" placeholder="例: 50" />
-    </div>
-
-    <button id="system-apply" class="btn-primary btn-sm" style="width:100%; margin-top:8px;">
-      設定を保存（デモ）
-    </button>
-
-    <div class="note" style="margin-top:10px;">
-      ※ 本番モードでは、この設定をAPI経由で保存し、
-      サーバー側で自動売買ロジックを実行します。
-    </div>
-
-    <div class="pill-row" style="margin-top:10px;">
-      <span class="pill pill-strong">バックテスト対応</span>
-      <span class="pill">複数シンボル同時運用</span>
-      <span class="pill">ウォークフォワード</span>
-    </div>
-  </section>
-
-  <!-- 右：シグナルログ -->
-  <section class="card">
-    <div class="card-header">
-      <div class="card-title">システム取引ログ（シグナル）</div>
-    </div>
-
-    <div id="system-log" class="system-log"></div>
-
-    <div class="note">
-      デモのためランダムなシグナルを表⽰しています。
-      本番では価格データ・戦略ロジックと連動します。
-    </div>
-  </section>
-
-</main>
+      <h2 class="card-sub">保有ポジション一覧</h2>
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>銘柄</th>
+              <th>数量</th>
+              <th>建値</th>
+              <th>現在値</th>
+              <th>評価損益</th>
+            </tr>
+          </thead>
+          <tbody id="sys-positions-body">
+            <tr>
+              <td colspan="5" style="text-align:center; font-size:12px; color:var(--text-muted);">
+                現在保有ポジションはありません。
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
 <div class="toast" id="toast">
   <span id="toast-text">メッセージ</span>
 </div>
 
 <!-- JS（ほぼそのまま残す） -->
-<script>
-  const API_BASE_URL = "https://api.exchange-template.com";
+  <script>
+    const API_BASE_URL = "https://api.exchange-template.com";
 
-  const systemSwitch = document.getElementById("system-switch");
-  const systemLog = document.getElementById("system-log");
-  const systemSymbol = document.getElementById("system-symbol");
-  const systemStrategy = document.getElementById("system-strategy");
-  const systemMaxPosition = document.getElementById("system-max-position");
-  const systemStop = document.getElementById("system-stop");
-  const systemTake = document.getElementById("system-take");
-  const systemMaxOrders = document.getElementById("system-max-orders");
-  const systemApply = document.getElementById("system-apply");
-  const toastEl = document.getElementById("toast");
-  const toastText = document.getElementById("toast-text");
+    const elMsg      = document.getElementById("sys-message");
+    const elGroupId  = document.getElementById("sys-group-id");
+    const elStatus   = document.getElementById("sys-status");
+    const elBalTotal = document.getElementById("sys-balance-total");
+    const elPosBody  = document.getElementById("sys-positions-body");
 
-  let systemOn = false;
-  let signalTimer = null;
+    const btnStop  = document.getElementById("sys-stop-btn");
+    const btnStart = document.getElementById("sys-start-btn");
 
-  /* ---- 将来 API 保存用の土台 ---- */
-  async function saveSystemSettings() {
-    const payload = {
-      symbol: systemSymbol.value,
-      strategy: systemStrategy.value,
-      maxPosition: systemMaxPosition.value,
-      stop: systemStop.value,
-      take: systemTake.value,
-      maxOrders: systemMaxOrders.value,
-    };
+    let currentUser = null; // /auth/me の内容を保持（role, id など）
 
-    console.log("API送信準備:", payload);
-
-    // 実際は以下に差し替え：
-    // await fetch(API_BASE_URL + "/system/settings", {
-    //   method: "POST",
-    //   credentials: "include",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(payload)
-    // });
-  }
-
-  function logSystem(msg) {
-    const line = document.createElement("div");
-    line.className = "system-log-line";
-    const time = new Date().toLocaleTimeString("ja-JP", { hour12:false });
-    line.textContent = `[${time}] ${msg}`;
-    systemLog.prepend(line);
-  }
-
-  function showToast(msg) {
-    toastText.textContent = msg;
-    toastEl.classList.add("show");
-    setTimeout(() => toastEl.classList.remove("show"), 2400);
-  }
-
-  systemSwitch.addEventListener("click", () => {
-    systemOn = !systemOn;
-    systemSwitch.classList.toggle("on", systemOn);
-
-    if (systemOn) {
-      startSignals();
-      logSystem("システム取引: 有効化");
-      showToast("システム取引を有効化（デモ）");
-    } else {
-      stopSignals();
-      logSystem("システム取引: 停止");
-      showToast("システム取引を停止（デモ）");
+    async function apiGet(path) {
+      const res = await fetch(API_BASE_URL + path, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error("GET " + path + " failed: " + txt);
+      }
+      return res.json();
     }
-  });
 
-  systemApply.addEventListener("click", async () => {
-    logSystem(`設定変更: ${systemSymbol.value}, 戦略=${systemStrategy.value}`);
-    showToast("設定を保存（デモ）");
-    await saveSystemSettings();
-  });
+    async function apiPost(path, body) {
+      const res = await fetch(API_BASE_URL + path, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body || {}),
+      });
+      const txt = await res.text();
+      let json;
+      try { json = txt ? JSON.parse(txt) : {}; } catch { json = { raw: txt }; }
+      if (!res.ok) {
+        throw new Error("POST " + path + " failed: " + txt);
+      }
+      return json;
+    }
 
-  /* ---- デモ: シグナル生成 ---- */
-  function startSignals() {
-    stopSignals();
-    signalTimer = setInterval(() => {
-      if (!systemOn) return;
-      generateFakeSignal();
-    }, 5000);
-  }
+    function showMessage(msg, ok = true) {
+      if (!elMsg) return;
+      elMsg.textContent = msg;
+      elMsg.style.color = ok ? "green" : "red";
+    }
 
-  function stopSignals() {
-    if (signalTimer) clearInterval(signalTimer);
-    signalTimer = null;
-  }
+    function renderOverview(ov) {
+      if (elGroupId)  elGroupId.textContent  = ov.groupId ?? "-";
+      if (elStatus)   elStatus.textContent   = ov.systemStatus ?? "-";
+      if (elBalTotal) elBalTotal.textContent = String(ov.balanceTotal ?? 0);
 
-  function generateFakeSignal() {
-    const side = Math.random() > 0.5 ? "BUY" : "SELL";
-    const price = 65000 + (Math.random() - 0.5) * 2000;
-    const size = (Math.random() * 0.05 + 0.01).toFixed(4);
-    const symbol = systemSymbol.value;
+      if (elPosBody) {
+        elPosBody.innerHTML = "";
+        const positions = ov.positions || [];
+        if (!positions.length) {
+          elPosBody.innerHTML =
+            '<tr><td colspan="5" style="text-align:center; font-size:12px; color:var(--text-muted);">現在保有ポジションはありません。</td></tr>';
+        } else {
+          positions.forEach((p) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${p.symbol}</td>
+              <td>${p.size}</td>
+              <td>${p.entryPrice}</td>
+              <td>${p.currentPrice}</td>
+              <td>${p.unrealizedPnl}</td>
+            `;
+            elPosBody.appendChild(tr);
+          });
+        }
+      }
+    }
 
-    logSystem(
-      `Signal: ${side} ${size} ${symbol.split("/")[0]} @ ${price.toFixed(2)} (${systemStrategy.value})`
-    );
-  }
+    async function loadMe() {
+      const data = await apiGet("/auth/me");
+      currentUser = data.user || data;
+      // 管理者以外は「システム再開」ボタンを隠す
+      if (currentUser.role !== "ADMIN" && btnStart) {
+        btnStart.style.display = "none";
+      }
+    }
 
-  /* INIT */
-  logSystem("システム取引画面を開きました（デモ）");
+    async function loadOverview() {
+      const ov = await apiGet("/system/overview");
+      renderOverview(ov);
+    }
 
-</script>
+    async function onStopClick() {
+      try {
+        await apiPost("/system/stop", {});
+        showMessage("システム停止をリクエストしました。", true);
+        await loadOverview();
+      } catch (e) {
+        console.error(e);
+        showMessage("システム停止リクエストに失敗しました。", false);
+      }
+    }
 
+    async function onStartClick() {
+      if (!currentUser || currentUser.role !== "ADMIN") {
+        showMessage("管理者のみ実行できます。", false);
+        return;
+      }
+      try {
+        await apiPost("/system/admin/start", { userId: currentUser.id });
+        showMessage("システム再開を実行しました。", true);
+        await loadOverview();
+      } catch (e) {
+        console.error(e);
+        showMessage("システム再開に失敗しました。", false);
+      }
+    }
+
+    if (btnStop)  btnStop.addEventListener("click", (e) => { e.preventDefault(); onStopClick(); });
+    if (btnStart) btnStart.addEventListener("click", (e) => { e.preventDefault(); onStartClick(); });
+
+    (async function initSystemTrade() {
+      try {
+        await loadMe();
+        await loadOverview();
+        showMessage("システム情報を取得しました。", true);
+      } catch (e) {
+        console.error(e);
+        showMessage("システム情報の取得に失敗しました。ログイン状態を確認してください。", false);
+      }
+    })();
+  </script>
 </body>
 </html>
-

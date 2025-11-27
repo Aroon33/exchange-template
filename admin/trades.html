@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>CryptoX Admin - ダッシュボード</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 共通 + Admin 専用CSS -->
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body>
+  <!-- サイドバー -->
+  <aside class="sidebar">
+    <div class="sidebar-title">メニュー</div>
+    <ul class="nav-list">
+      <li class="nav-item">
+        <a href="index.html" class="nav-link active">
+          <span class="nav-icon">🏠</span><span>ダッシュボード</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="tickets.html" class="nav-link">
+          <span class="nav-icon">💬</span><span>問い合わせ管理</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="users.html" class="nav-link">
+          <span class="nav-icon">👥</span><span>ユーザー一覧</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="trades.html" class="nav-link">
+          <span class="nav-icon">📊</span><span>取引状況</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="kyc.html" class="nav-link">
+          <span class="nav-icon">📊</span><span>KYC状況</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="deposit.html" class="nav-link">
+          <span class="nav-icon">➕</span><span>入金申請</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="withdraw.html" class="nav-link">
+          <span class="nav-icon">➖</span><span>出金申請</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="group.html" class="nav-link">
+          <span class="nav-icon">🧩</span><span>グループ管理</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="settings.html" class="nav-link">
+          <span class="nav-icon">⚙️</span><span>システム設定</span>
+        </a>
+      </li>
+    </ul>
+    <div class="sidebar-footer">
+      CryptoX Admin<br />UI Demo &copy; 2025
+    </div>
+  </aside>
+
+  <!-- ヘッダー -->
+  <header class="admin-header">
+    <div class="admin-header-left">
+      <div class="admin-logo-badge">AX</div>
+      <div>
+        <div class="admin-logo-text">Admin Console</div>
+        <div class="admin-logo-sub">CryptoX Exchange</div>
+      </div>
+    </div>
+    <div class="admin-header-right">
+      <span>管理者：admin@example.com</span>
+      <button class="btn btn-outline btn-sm" onclick="location.href='../login.html'">ログアウト（デモ）</button>
+    </div>
+  </header>
+<section class="table-card" style="margin-top: 16px;">
+  <div class="card-header-row">
+    <div>
+      <div class="card-title-small">取引履歴</div>
+      <div class="card-sub-small" id="admin-trades-count">0件</div>
+    </div>
+    <button class="btn-xs" id="admin-trades-refresh">再読み込み</button>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>ユーザー</th>
+        <th>銘柄</th>
+        <th>売買</th>
+        <th>数量</th>
+        <th>建値</th>
+        <th>決済値</th>
+        <th>損益</th>
+        <th>決済日時</th>
+      </tr>
+    </thead>
+    <tbody id="admin-trades-body">
+      <tr>
+        <td colspan="9" style="text-align:center; font-size:12px; color:var(--text-muted);">
+          取引履歴はありません。
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p id="admin-trades-message" class="muted" style="margin-top:8px;"></p>
+</section>
+
+<script>
+  const ADMIN_API_BASE = "https://api.exchange-template.com";
+
+  const elBody   = document.getElementById("admin-trades-body");
+  const elMsg    = document.getElementById("admin-trades-message");
+  const elCount  = document.getElementById("admin-trades-count");
+  const btnReload= document.getElementById("admin-trades-refresh");
+
+  async function adminApiGet(path) {
+    const res = await fetch(ADMIN_API_BASE + path, {
+      credentials: "include",
+    });
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error("GET " + path + " failed: " + txt);
+    }
+    return res.json();
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return "-";
+    return new Date(iso).toLocaleString("ja-JP", { hour12: false });
+  }
+
+  function fmtNum(v) {
+    if (v == null) return "-";
+    const n = Number(v);
+    if (isNaN(n)) return String(v);
+    return n.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 8,
+    });
+  }
+
+  async function loadAdminTrades() {
+    try {
+      const trades = await adminApiGet("/trades/admin/all");
+
+      elBody.innerHTML = "";
+
+      if (!trades.length) {
+        elBody.innerHTML =
+          '<tr><td colspan="9" style="text-align:center; font-size:12px; color:var(--text-muted);">取引履歴はありません。</td></tr>';
+      } else {
+        trades.forEach((t) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${t.id}</td>
+            <td>${t.userId} / ${t.email}</td>
+            <td>${t.symbol}</td>
+            <td>${t.side}</td>
+            <td>${fmtNum(t.size)}</td>
+            <td>${fmtNum(t.entryPrice)}</td>
+            <td>${fmtNum(t.closePrice)}</td>
+            <td>${fmtNum(t.profit)}</td>
+            <td>${fmtDate(t.closedAt)}</td>
+          `;
+          elBody.appendChild(tr);
+        });
+      }
+
+      if (elCount) {
+        elCount.textContent = (trades.length || 0) + "件";
+      }
+      if (elMsg) {
+        elMsg.textContent = "取引履歴を読み込みました。";
+        elMsg.style.color = "green";
+      }
+    } catch (e) {
+      console.error(e);
+      if (elMsg) {
+        elMsg.textContent = "取引履歴の取得に失敗しました。ログイン状態と権限を確認してください。";
+        elMsg.style.color = "red";
+      }
+    }
+  }
+
+  (function initAdminTrades() {
+    loadAdminTrades();
+    if (btnReload) {
+      btnReload.addEventListener("click", (e) => {
+        e.preventDefault();
+        loadAdminTrades();
+      });
+    }
+  })();
+</script>
+</body>
+</html>
+

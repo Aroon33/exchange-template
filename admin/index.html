@@ -85,16 +85,15 @@
     <div class="admin-main-inner">
       <div class="page-title">ダッシュボード</div>
       <div class="page-sub">
-        全体の状況を確認し、ユーザー / 入出金 / 問い合わせに素早くアクセスできます。
       </div>
 
       <!-- 検索・フィルター -->
       <section class="search-card">
         <div class="search-row-top">
           <div>
-            <div class="search-title">グローバル検索</div>
+            <div class="search-title">キーワード検索</div>
             <div class="search-meta">
-              ユーザー名 / メール / アフィリエイトコード / 日付で絞り込みできます。
+              ユーザー名 / メール /  日付。
             </div>
           </div>
           <span class="tag">対象：ユーザー / 入出金 / 問い合わせ</span>
@@ -102,11 +101,11 @@
 
         <div class="search-grid">
           <div class="form-field">
-            <label>キーワード（名前・メール・ユーザーID）</label>
+            <label>キーワード</label>
             <input type="text" id="q-text" placeholder="例：Taro / user@example.com / user-demo-001" />
           </div>
           <div class="form-field">
-            <label>アフィリエイトコード</label>
+            <label>紹介コード</label>
             <input type="text" id="q-affiliate" placeholder="例：AFF-12345" />
           </div>
           <div class="form-field">
@@ -125,11 +124,46 @@
         </div>
       </section>
 
+<section class="card" style="margin-bottom: 20px;">
+  <h1 class="card-title">ダッシュボード</h1>
+  <p class="card-sub"></p>
+
+  <div class="info-grid">
+    <div class="info-row">
+      <span class="info-label">総ユーザー数</span>
+      <span class="info-value" id="admin-total-users">-</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">合計口座残高</span>
+      <span class="info-value" id="admin-total-balance">-</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">入金申請（PENDING）</span>
+      <span class="info-value" id="admin-pending-deposits">-</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">出金申請（PENDING）</span>
+      <span class="info-value" id="admin-pending-withdraws">-</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">KYC未処理件数</span>
+      <span class="info-value" id="admin-pending-kyc">-</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">未対応チケット数</span>
+      <span class="info-value" id="admin-open-tickets">-</span>
+    </div>
+  </div>
+
+  <p id="admin-dashboard-message" class="muted" style="margin-top: 8px;"></p>
+</section>
+
+
       <!-- サマリー -->
       <section class="summary-grid">
         <div class="summary-card">
-          <div class="summary-label">総ユーザー数（デモ）</div>
-          <div class="summary-value" id="sum-users">0</div>
+          <div class="admin-total-users">総ユーザー数（デモ）</div>
+          <div class="summary-value" id="admin-total-users">0</div>
           <div class="summary-sub">本番環境ではDBから取得</div>
         </div>
         <div class="summary-card">
@@ -139,12 +173,12 @@
         </div>
         <div class="summary-card">
           <div class="summary-label">入金申請中</div>
-          <div class="summary-value" id="sum-dep-pending">0</div>
+          <div class="summary-value" id="admin-pending-deposits">0</div>
           <div class="summary-sub">pending 入金申請（デモ）</div>
         </div>
         <div class="summary-card">
           <div class="summary-label">出金申請中</div>
-          <div class="summary-value" id="sum-wd-pending">0</div>
+          <div class="summary-value" id="admin-pending-withdraws">0</div>
           <div class="summary-sub">pending 出金申請（デモ）</div>
         </div>
       </section>
@@ -174,299 +208,60 @@
   </main>
 
   <script>
-    const rows = [
-      {
-        id: "user-001",
-        type: "user",
-        typeLabel: "ユーザー",
-        nameOrTitle: "Taro Yamada",
-        userId: "user-demo-001",
-        affiliateCode: "AFF-12345",
-        amount: null,
-        status: "active",
-        statusLabel: "有効",
-        createdAt: "2025-11-18 10:15",
-      },
-      {
-        id: "user-002",
-        type: "user",
-        typeLabel: "ユーザー",
-        nameOrTitle: "Hanako Suzuki",
-        userId: "user-demo-002",
-        affiliateCode: "AFF-77777",
-        amount: null,
-        status: "pending",
-        statusLabel: "KYC確認中",
-        createdAt: "2025-11-19 09:05",
-      },
-      {
-        id: "ticket-001",
-        type: "ticket",
-        typeLabel: "問い合わせ",
-        nameOrTitle: "入金が反映されません",
-        userId: "user-demo-001",
-        affiliateCode: "AFF-12345",
-        amount: null,
-        status: "new",
-        statusLabel: "未対応",
-        createdAt: "2025-11-19 08:30",
-      },
-      {
-        id: "dep-001",
-        type: "deposit",
-        typeLabel: "入金申請",
-        nameOrTitle: "銀行振込 JPY",
-        userId: "user-demo-003",
-        affiliateCode: "AFF-00001",
-        amount: 1000.0,
-        status: "pending",
-        statusLabel: "申請中",
-        createdAt: "2025-11-19 07:45",
-      },
-      {
-        id: "wd-001",
-        type: "withdraw",
-        typeLabel: "出金申請",
-        nameOrTitle: "BTC 出金",
-        userId: "user-demo-001",
-        affiliateCode: "AFF-12345",
-        amount: 0.5 * 67000,
-        status: "pending",
-        statusLabel: "申請中",
-        createdAt: "2025-11-18 22:10",
-      },
-      {
-        id: "ticket-002",
-        type: "ticket",
-        typeLabel: "問い合わせ",
-        nameOrTitle: "システム取引の設定について",
-        userId: "user-demo-004",
-        affiliateCode: "",
-        amount: null,
-        status: "open",
-        statusLabel: "対応中",
-        createdAt: "2025-11-18 16:20",
-      },
-      {
-        id: "dep-002",
-        type: "deposit",
-        typeLabel: "入金申請",
-        nameOrTitle: "USDT 入金",
-        userId: "user-demo-002",
-        affiliateCode: "AFF-77777",
-        amount: 500.0,
-        status: "completed",
-        statusLabel: "完了",
-        createdAt: "2025-11-17 19:00",
-      },
-      {
-        id: "wd-002",
-        type: "withdraw",
-        typeLabel: "出金申請",
-        nameOrTitle: "USDT 出金",
-        userId: "user-demo-005",
-        affiliateCode: "",
-        amount: 200.0,
-        status: "admin_cancel",
-        statusLabel: "管理側キャンセル",
-        createdAt: "2025-11-17 15:30",
-      },
-      {
-        id: "user-003",
-        type: "user",
-        typeLabel: "ユーザー",
-        nameOrTitle: "Suspended User",
-        userId: "user-demo-999",
-        affiliateCode: "AFF-99999",
-        amount: null,
-        status: "suspended",
-        statusLabel: "停止中",
-        createdAt: "2025-11-10 11:11",
+    const ADMIN_API_BASE = "https://api.exchange-template.com";
+
+    const elTotalUsers   = document.getElementById("admin-total-users");
+    const elTotalBalance = document.getElementById("admin-total-balance");
+    const elPendDep      = document.getElementById("admin-pending-deposits");
+    const elPendWit      = document.getElementById("admin-pending-withdraws");
+    const elPendKyc      = document.getElementById("admin-pending-kyc");
+    const elOpenTickets  = document.getElementById("admin-open-tickets");
+    const elMsg          = document.getElementById("admin-dashboard-message");
+
+    async function adminApiGet(path) {
+      const res = await fetch(ADMIN_API_BASE + path, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error("GET " + path + " failed: " + txt);
       }
-    ];
-
-    const qTextEl = document.getElementById("q-text");
-    const qAffEl = document.getElementById("q-affiliate");
-    const qFromEl = document.getElementById("q-from");
-    const qToEl = document.getElementById("q-to");
-    const btnSearch = document.getElementById("btn-search");
-    const btnClear = document.getElementById("btn-clear");
-    const tableBody = document.getElementById("table-body");
-    const tableMeta = document.getElementById("table-meta");
-    const sumUsersEl = document.getElementById("sum-users");
-    const sumTicketsNewEl = document.getElementById("sum-tickets-new");
-    const sumDepPendingEl = document.getElementById("sum-dep-pending");
-    const sumWdPendingEl = document.getElementById("sum-wd-pending");
-
-    let currentSortKey = "createdAt";
-    let currentSortDir = "desc";
-    let filteredRows = rows.slice();
-
-    function parseDateTime(str) {
-      return new Date(str.replace(" ", "T"));
+      return res.json();
     }
 
-    function applyFilters() {
-      const text = qTextEl.value.trim().toLowerCase();
-      const aff = qAffEl.value.trim().toLowerCase();
-      const fromVal = qFromEl.value;
-      const toVal = qToEl.value;
-
-      filteredRows = rows.filter((r) => {
-        if (text) {
-          const haystack = (r.nameOrTitle || "").toLowerCase() + " " + (r.userId || "").toLowerCase();
-          if (!haystack.includes(text)) return false;
-        }
-        if (aff) {
-          const code = (r.affiliateCode || "").toLowerCase();
-          if (!code.includes(aff)) return false;
-        }
-        if (fromVal) {
-          const fromTs = new Date(fromVal + "T00:00:00").getTime();
-          if (parseDateTime(r.createdAt).getTime() < fromTs) return false;
-        }
-        if (toVal) {
-          const toTs = new Date(toVal + "T23:59:59").getTime();
-          if (parseDateTime(r.createdAt).getTime() > toTs) return false;
-        }
-        return true;
-      });
-
-      applySort();
-      renderTable();
-    }
-
-    function applySort() {
-      const key = currentSortKey;
-      const dir = currentSortDir;
-
-      filteredRows.sort((a, b) => {
-        let va, vb;
-        if (key === "createdAt") {
-          va = parseDateTime(a.createdAt).getTime();
-          vb = parseDateTime(b.createdAt).getTime();
-        } else if (key === "amount") {
-          va = a.amount == null ? -Infinity : a.amount;
-          vb = b.amount == null ? -Infinity : b.amount;
-        } else {
-          va = (a[key] || "").toString().toLowerCase();
-          vb = (b[key] || "").toString().toLowerCase();
-        }
-        if (va < vb) return dir === "asc" ? -1 : 1;
-        if (va > vb) return dir === "asc" ? 1 : -1;
-        return 0;
+    function fmtAmount(v) {
+      if (v == null) return "-";
+      const n = Number(v);
+      if (isNaN(n)) return String(v);
+      return n.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 8,
       });
     }
 
-    function renderTable() {
-      tableBody.innerHTML = "";
-      filteredRows.forEach((r) => {
-        const tr = document.createElement("tr");
-        tr.className = "table-row";
+    (async function initAdminDashboard() {
+      try {
+        const data = await adminApiGet("/admin/overview");
 
-        const statusChip = (() => {
-          if (r.type === "user") {
-            if (r.status === "active") return `<span class="status-chip status-active">有効</span>`;
-            if (r.status === "pending") return `<span class="status-chip status-pending">KYC確認中</span>`;
-            if (r.status === "suspended") return `<span class="status-chip status-suspended">停止中</span>`;
-          } else if (r.type === "ticket") {
-            if (r.status === "new") return `<span class="status-chip status-pending">未対応</span>`;
-            if (r.status === "open") return `<span class="status-chip status-active">対応中</span>`;
-            if (r.status === "closed") return `<span class="status-chip status-suspended">対応済</span>`;
-          } else if (r.type === "deposit" || r.type === "withdraw") {
-            if (r.status === "pending") return `<span class="status-chip status-pending">申請中</span>`;
-            if (r.status === "completed") return `<span class="status-chip status-active">完了</span>`;
-            if (r.status === "user_cancel") return `<span class="status-chip status-suspended">ユーザーキャンセル</span>`;
-            if (r.status === "admin_cancel") return `<span class="status-chip status-suspended">管理側キャンセル</span>`;
-          }
-          return `<span class="status-chip status-suspended">${r.statusLabel || "不明"}</span>`;
-        })();
+        if (elTotalUsers)   elTotalUsers.textContent   = String(data.totalUsers ?? 0);
+        if (elTotalBalance) elTotalBalance.textContent = fmtAmount(data.totalBalance ?? 0);
+        if (elPendDep)      elPendDep.textContent      = String(data.pendingDeposits ?? 0);
+        if (elPendWit)      elPendWit.textContent      = String(data.pendingWithdraws ?? 0);
+        if (elPendKyc)      elPendKyc.textContent      = String(data.pendingKyc ?? 0);
+        if (elOpenTickets)  elOpenTickets.textContent  = String(data.openTickets ?? 0);
 
-        const amountText =
-          r.amount == null
-            ? "-"
-            : r.amount.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              });
-
-        tr.innerHTML = `
-          <td>${r.createdAt}</td>
-          <td>${r.typeLabel}</td>
-          <td>${r.nameOrTitle}</td>
-          <td>${r.userId || "-"}</td>
-          <td>${r.affiliateCode || "-"}</td>
-          <td class="amount">${amountText}</td>
-          <td>${statusChip}</td>
-        `;
-        tableBody.appendChild(tr);
-      });
-
-      tableMeta.textContent = `${filteredRows.length}件を表示中`;
-    }
-
-    function updateSummary() {
-      const userCount = rows.filter((r) => r.type === "user").length;
-      const ticketNewCount = rows.filter((r) => r.type === "ticket" && r.status === "new").length;
-      const depPendingCount = rows.filter((r) => r.type === "deposit" && r.status === "pending").length;
-      const wdPendingCount = rows.filter((r) => r.type === "withdraw" && r.status === "pending").length;
-
-      sumUsersEl.textContent = userCount;
-      sumTicketsNewEl.textContent = ticketNewCount;
-      sumDepPendingEl.textContent = depPendingCount;
-      sumWdPendingEl.textContent = wdPendingCount;
-    }
-
-    document.querySelectorAll("th.sortable").forEach((th) => {
-      th.addEventListener("click", () => {
-        const key = th.dataset.sortKey;
-        if (!key) return;
-        if (currentSortKey === key) {
-          currentSortDir = currentSortDir === "asc" ? "desc" : "asc";
-        } else {
-          currentSortKey = key;
-          currentSortDir = "asc";
+        if (elMsg) {
+          elMsg.textContent = "ダッシュボード情報を更新しました。";
+          elMsg.style.color = "green";
         }
-        document.querySelectorAll("th.sortable .sort-indicator").forEach((el) => {
-          el.textContent = "";
-        });
-        const indicator = th.querySelector(".sort-indicator");
-        indicator.textContent = currentSortDir === "asc" ? "▲" : "▼";
-
-        applySort();
-        renderTable();
-      });
-    });
-
-    btnSearch.addEventListener("click", applyFilters);
-
-    btnClear.addEventListener("click", () => {
-      qTextEl.value = "";
-      qAffEl.value = "";
-      qFromEl.value = "";
-      qToEl.value = "";
-      filteredRows = rows.slice();
-      applySort();
-      renderTable();
-    });
-
-    function init() {
-      updateSummary();
-      const today = new Date();
-      const isoToday = today.toISOString().slice(0, 10);
-      const weekAgo = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
-      const isoWeekAgo = weekAgo.toISOString().slice(0, 10);
-      qToEl.value = isoToday;
-      qFromEl.value = isoWeekAgo;
-
-      applyFilters();
-      const th = document.querySelector('th[data-sort-key="createdAt"]');
-      if (th) {
-        th.querySelector(".sort-indicator").textContent = "▼";
+      } catch (e) {
+        console.error(e);
+        if (elMsg) {
+          elMsg.textContent = "ダッシュボード情報の取得に失敗しました。ログイン状態と権限を確認してください。";
+          elMsg.style.color = "red";
+        }
       }
-    }
-
-    init();
+    })();
   </script>
 </body>
 </html>

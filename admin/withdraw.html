@@ -44,8 +44,7 @@
     <div class="admin-main-inner">
       <div class="page-title">出金申請管理</div>
       <div class="page-sub">
-        出金申請を確認し、「申請中」→「完了／キャンセル」で残高をどう変えるかのフローをデモします。<br>
-        （ローカルストレージベース。APIに置き換え可能な構造です）
+        
       </div>
 
       <!-- フィルタ -->
@@ -96,7 +95,7 @@
         <div class="card">
           <div class="card-header-row">
             <div>
-              <div class="card-title-small">出金申請一覧（ローカルストレージ）</div>
+              <div class="card-title-small">出金申請一覧</div>
               <div class="card-sub-small" id="list-count">0件</div>
             </div>
             <button class="btn-xs" id="btn-refresh">再読み込み</button>
@@ -157,7 +156,7 @@
 
   <div class="toast" id="toast"></div>
   <script>
-    const API_BASE = 'http://localhost:3000'; // APIドメインに合わせて変更
+    const API_BASE_URL = "https://api.exchange-template.com";
 
     const listBoxEl      = document.getElementById("list-box");
     const listCountEl    = document.getElementById("list-count");

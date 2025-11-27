@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- 共通 + Admin 専用CSS -->
-  <link rel="stylesheet" href="../assets/css/style.css">
+   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
@@ -44,9 +44,13 @@
     <div class="admin-main-inner">
       <div class="page-title">入金申請管理</div>
       <div class="page-sub">
-        ユーザーからの入金申請を一覧・検索し、ステータス変更に応じて残高を更新するデモ用画面です。<br>
-        現状は localStorage（<code>cx_transfers</code>, <code>cx_wallet_store</code>）を使用していますが、API に置き換え可能な構造です。
+        
       </div>
+
+      <!-- Group cards -->
+      <section class="group-grid" id="group-grid">
+        <!-- JSで生成 -->
+      </section>
 
       <!-- フィルタ -->
       <section class="filters-card">
@@ -128,6 +132,7 @@
             <div class="info-block">
               <div class="info-label">申請情報</div>
               <div class="info-value" id="info-user">ユーザーID: -</div>
+              <div class="info-value" id="info-user">名前: -</div>
               <div class="wallet-row" id="info-amount">通貨: - / 金額: -</div>
               <div class="wallet-row" id="info-ids">ID: - / method: -</div>
             </div>
@@ -146,9 +151,7 @@
 
           <div class="note">
             ステータス遷移と残高反映（デモ用ロジック）：<br>
-            ・<b>pending → completed</b> : 総残高と利用可能残高に金額を加算。<br>
-            ・<b>pending → cancel</b> : 残高への影響なし（入金未反映のままキャンセル）。<br>
-            ・その他の遷移はデモ用に簡略化しています。
+            
           </div>
         </div>
       </section>

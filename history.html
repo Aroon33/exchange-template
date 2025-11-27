@@ -34,179 +34,225 @@
   </div>
 </header>
 
+  <main>
+    <section class="card" style="max-width: 980px; margin: 24px auto;">
+      <h1 class="card-title">履歴</h1>
+      <p class="card-sub">
+        入出金履歴と取引履歴を確認できます。
+      </p>
+      <p id="history-message" class="muted" style="margin-bottom: 16px;"></p>
 
-<main style="max-width:980px; margin:0 auto; padding:18px 20px 26px; display:flex; flex-direction:column; gap:14px;">
+      <!-- タブ -->
+      <div class="row-inline" style="margin-bottom: 16px; gap: 8px;">
+        <button id="tab-transfer" class="btn btn-outline btn-sm active">入出金履歴</button>
+        <button id="tab-trade" class="btn btn-outline btn-sm">取引履歴</button>
+      </div>
 
-  <section class="card">
-    <div class="card-header">
-      <div>
-        <div class="card-title">取引履歴</div>
-        <div class="card-sub">
-          ※ 現在はフロントのみのデータ表示。  
-          <br/>API連携時は /orders/history を使用します。
+      <!-- 入出金履歴テーブル -->
+      <section id="section-transfer">
+        <h2 class="card-sub">入出金履歴</h2>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>種別</th>
+                <th>金額</th>
+                <th>ステータス</th>
+                <th>日時</th>
+              </tr>
+            </thead>
+            <tbody id="transfer-history-body">
+              <tr>
+                <td colspan="5" style="text-align:center; font-size:12px; color:var(--text-muted);">
+                  入出金履歴はありません。
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-      <a href="exchange.html" class="btn btn-outline btn-sm">トレード画面へ</a>
-    </div>
+      </section>
 
-    <!-- FILTERS -->
-    <div class="filters">
-      <div class="filter-group">
-        <span>種別:</span>
-        <div class="chips">
-          <button class="chip-btn active" data-side="all">すべて</button>
-          <button class="chip-btn" data-side="buy">買い</button>
-          <button class="chip-btn" data-side="sell">売り</button>
+      <!-- 取引履歴テーブル -->
+      <section id="section-trade" style="display:none;">
+        <h2 class="card-sub">取引履歴（確定取引）</h2>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>銘柄</th>
+                <th>売買</th>
+                <th>数量</th>
+                <th>建値</th>
+                <th>決済値</th>
+                <th>損益</th>
+                <th>決済日時</th>
+              </tr>
+            </thead>
+            <tbody id="trade-history-body">
+              <tr>
+                <td colspan="8" style="text-align:center; font-size:12px; color:var(--text-muted);">
+                  取引履歴はありません。
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
+      </section>
+    </section>
+  </main>
 
-      <div class="filter-group">
-        <span>通貨ペア:</span>
-        <select id="pair-filter">
-          <option value="all">すべて</option>
-          <option value="BTC/USD">BTC / USD</option>
-          <option value="ETH/USD">ETH / USD</option>
-          <option value="SOL/USD">SOL / USD</option>
-          <option value="DOGE/USD">DOGE / USD</option>
-        </select>
-      </div>
+  <script>
+    const API_BASE_URL = "https://api.exchange-template.com";
 
-      <div class="filter-group">
-        <span>期間:</span>
-        <input type="date" id="from-date" />
-        <span>〜</span>
-        <input type="date" id="to-date" />
-      </div>
-    </div>
+    const elMsg          = document.getElementById("history-message");
+    const elTabTrans     = document.getElementById("tab-transfer");
+    const elTabTrade     = document.getElementById("tab-trade");
+    const elSecTrans     = document.getElementById("section-transfer");
+    const elSecTrade     = document.getElementById("section-trade");
+    const elTransBody    = document.getElementById("transfer-history-body");
+    const elTradeBody    = document.getElementById("trade-history-body");
 
-    <!-- TABLE -->
-    <table>
-      <thead>
-        <tr>
-          <th>日時</th>
-          <th>通貨ペア</th>
-          <th>サイド</th>
-          <th class="amount">数量</th>
-          <th class="amount">価格 (USD)</th>
-          <th class="amount">約定金額 (USD)</th>
-        </tr>
-      </thead>
-      <tbody id="history-body"></tbody>
-    </table>
+    async function apiGet(path) {
+      const res = await fetch(API_BASE_URL + path, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error("GET " + path + " failed: " + txt);
+      }
+      return res.json();
+    }
 
-    <div id="no-data" class="no-data" style="display:none;">
-      該当する取引はありません。
-    </div>
+    function fmtDate(iso) {
+      if (!iso) return "-";
+      return new Date(iso).toLocaleString("ja-JP", { hour12: false });
+    }
 
-  </section>
+    function fmtAmount(a) {
+      if (a == null) return "-";
+      const n = Number(a);
+      if (isNaN(n)) return String(a);
+      return n.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 8,
+      });
+    }
 
-</main>
+    async function loadTransferHistory() {
+      const data = await apiGet("/wallet");
+      const trs  = data.transfers || [];
 
-<script>
-/* --------------------------
-   現在はダミー約定履歴
-   後で /orders/history API に置き換え可能
--------------------------- */
-const trades = [
-  { time:"2025-11-19 18:21", pair:"BTC/USD", side:"buy",  size:0.0100, price:67050.00 },
-  { time:"2025-11-19 17:02", pair:"ETH/USD", side:"sell", size:0.5000, price:3210.50 },
-  { time:"2025-11-18 22:15", pair:"DOGE/USD", side:"buy",  size:1000,   price:0.1700 },
-  { time:"2025-11-18 19:40", pair:"SOL/USD", side:"buy",  size:5.0,    price:180.10 },
-  { time:"2025-11-17 15:03", pair:"BTC/USD", side:"sell", size:0.0200, price:66500.00 },
-  { time:"2025-11-16 11:25", pair:"ETH/USD", side:"buy",  size:1.0000, price:3180.00 },
-];
+      elTransBody.innerHTML = "";
 
-const bodyEl = document.getElementById("history-body");
-const noDataEl = document.getElementById("no-data");
-const pairFilterEl = document.getElementById("pair-filter");
-const fromDateEl = document.getElementById("from-date");
-const toDateEl = document.getElementById("to-date");
-const sideButtons = document.querySelectorAll(".chip-btn");
+      if (!trs.length) {
+        elTransBody.innerHTML =
+          '<tr><td colspan="5" style="text-align:center; font-size:12px; color:var(--text-muted);">入出金履歴はありません。</td></tr>';
+        return;
+      }
 
-let currentSide = "all";
+      trs
+        .slice()
+        .sort((a, b) => {
+          const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return tb - ta;
+        })
+        .forEach((t) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${t.id}</td>
+            <td>${t.type}</td>
+            <td>${fmtAmount(t.amount)}</td>
+            <td>${t.status}</td>
+            <td>${fmtDate(t.createdAt)}</td>
+          `;
+          elTransBody.appendChild(tr);
+        });
+    }
 
-/* SIDE FILTER BUTTONS */
-sideButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    sideButtons.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentSide = btn.dataset.side;
-    render();
-  });
-});
+    async function loadTradeHistory() {
+      const trades = await apiGet("/trades/history");
 
-pairFilterEl.addEventListener("change", render);
-fromDateEl.addEventListener("change", render);
-toDateEl.addEventListener("change", render);
+      elTradeBody.innerHTML = "";
 
+      if (!trades.length) {
+        elTradeBody.innerHTML =
+          '<tr><td colspan="8" style="text-align:center; font-size:12px; color:var(--text-muted);">取引履歴はありません。</td></tr>';
+        return;
+      }
 
-function render() {
-  bodyEl.innerHTML = "";
+      trades.forEach((t) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.id}</td>
+          <td>${t.symbol}</td>
+          <td>${t.side}</td>
+          <td>${fmtAmount(t.size)}</td>
+          <td>${fmtAmount(t.entryPrice)}</td>
+          <td>${fmtAmount(t.closePrice)}</td>
+          <td>${fmtAmount(t.profit)}</td>
+          <td>${fmtDate(t.closedAt)}</td>
+        `;
+        elTradeBody.appendChild(tr);
+      });
+    }
 
-  let filtered = trades.slice();
+    function setActiveTab(tab) {
+      if (tab === "transfer") {
+        elTabTrans.classList.add("active");
+        elTabTrade.classList.remove("active");
+        elSecTrans.style.display = "";
+        elSecTrade.style.display = "none";
+      } else {
+        elTabTrade.classList.add("active");
+        elTabTrans.classList.remove("active");
+        elSecTrade.style.display = "";
+        elSecTrans.style.display = "none";
+      }
+    }
 
-  /* side filter */
-  if (currentSide !== "all") {
-    filtered = filtered.filter(t => t.side === currentSide);
-  }
+    elTabTrans.addEventListener("click", (e) => {
+      e.preventDefault();
+      setActiveTab("transfer");
+    });
 
-  /* pair filter */
-  const pair = pairFilterEl.value;
-  if (pair !== "all") {
-    filtered = filtered.filter(t => t.pair === pair);
-  }
+    elTabTrade.addEventListener("click", async (e) => {
+      e.preventDefault();
+      setActiveTab("trade");
+      try {
+        await loadTradeHistory();
+        if (elMsg) {
+          elMsg.textContent = "取引履歴を更新しました。";
+          elMsg.style.color = "green";
+        }
+      } catch (err) {
+        console.error(err);
+        if (elMsg) {
+          elMsg.textContent = "取引履歴の取得に失敗しました。";
+          elMsg.style.color = "red";
+        }
+      }
+    });
 
-  /* date filter */
-  const fromValue = fromDateEl.value;
-  const toValue = toDateEl.value;
-
-  if (fromValue) {
-    const ts = new Date(fromValue + "T00:00:00").getTime();
-    filtered = filtered.filter(t => new Date(t.time.replace(" ","T")).getTime() >= ts);
-  }
-  if (toValue) {
-    const ts = new Date(toValue + "T23:59:59").getTime();
-    filtered = filtered.filter(t => new Date(t.time.replace(" ","T")).getTime() <= ts);
-  }
-
-  if (filtered.length === 0) {
-    noDataEl.style.display = "block";
-    return;
-  }
-
-  noDataEl.style.display = "none";
-
-  filtered.forEach(t => {
-    const tr = document.createElement("tr");
-    const sideClass = t.side === "buy" ? "side-buy" : "side-sell";
-    const notional = t.size * t.price;
-
-    tr.innerHTML = `
-      <td>${t.time}</td>
-      <td>${t.pair}</td>
-      <td class="${sideClass}">${t.side === "buy" ? "買い" : "売り"}</td>
-      <td class="amount">${t.size.toLocaleString("en-US",{minimumFractionDigits:4,maximumFractionDigits:4})}</td>
-      <td class="amount">${t.price.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-      <td class="amount">${notional.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-    `;
-
-    bodyEl.appendChild(tr);
-  });
-}
-
-function initDates() {
-  const today = new Date();
-  const isoToday = today.toISOString().slice(0,10);
-  toDateEl.value = isoToday;
-
-  const weekAgo = new Date(today.getTime() - 6*86400000);
-  fromDateEl.value = weekAgo.toISOString().slice(0,10);
-}
-
-initDates();
-render();
-</script>
-
+    (async function initHistoryPage() {
+      try {
+        await loadTransferHistory();
+        if (elMsg) {
+          elMsg.textContent = "履歴を更新しました。";
+          elMsg.style.color = "green";
+        }
+      } catch (err) {
+        console.error(err);
+        if (elMsg) {
+          elMsg.textContent = "履歴の取得に失敗しました。ログイン状態を確認してください。";
+          elMsg.style.color = "red";
+        }
+      }
+    })();
+  </script>
 </body>
 </html>
+
 

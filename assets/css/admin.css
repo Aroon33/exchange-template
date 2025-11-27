@@ -377,4 +377,35 @@ td.amount {
   .admin-main { margin-left:0; }
   .admin-header { padding-left:12px; }
 }
+/* フィルターカード */
+.filters-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  padding: 10px 12px 8px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  margin-bottom: 10px;
+}
 
+.filters-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.filters-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.filters-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
