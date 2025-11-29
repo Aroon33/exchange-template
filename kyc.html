@@ -2,243 +2,207 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>CryptoX Exchange - KYC / 本人確認</title>
+  <title>CryptoX Exchange - KYC（本人確認）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- 外部CSS -->
   <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .kyc-box {
+      margin-top: 20px;
+      padding: 16px;
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      background: #fafbfd;
+    }
+    .kyc-status {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .upload-section {
+      margin-top: 12px;
+    }
+    .upload-section label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .upload-section input {
+      padding: 6px;
+      width: 100%;
+      border: 1px solid var(--border-soft);
+      border-radius: 6px;
+      background: #fff;
+    }
+    .btn-submit {
+      margin-top: 16px;
+      width: 100%;
+    }
+    .note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+  </style>
 </head>
+
 <body>
 
-  <header class="site-header">
-    <div class="logo">
-      <div class="logo-badge">CX</div>
-      CryptoX Exchange
+<header class="site-header">
+  <div class="logo">
+    <div class="logo-badge">CX</div>
+    CryptoX Exchange
+  </div>
+  <nav class="site-nav">
+    <a href="index.html" class="nav-link">TOP</a>
+    <a href="exchange.html" class="nav-link">トレード</a>
+    <a href="wallet.html" class="nav-link">ウォレット</a>
+    <a href="system-trade.html" class="nav-link">システム取引</a>
+    <a href="support.html" class="nav-link">サポート</a>
+    <a href="mypage.html" class="nav-link">マイページ</a>
+    <a href="kyc.html" class="nav-link active">KYC</a>
+    <a href="history.html" class="nav-link">取引履歴</a>
+  </nav>
+  <div class="header-actions">
+    <a href="login.html" class="btn btn-outline btn-sm">ログイン</a>
+    <a href="signup.html" class="btn btn-primary btn-sm">口座開設</a>
+  </div>
+</header>
+
+<main>
+  <section class="card" style="max-width:700px;margin:24px auto;">
+    <h1 class="card-title">本人確認（KYC）</h1>
+    <p class="muted" id="kyc-msg" style="margin-bottom:16px;"></p>
+
+    <div class="kyc-box">
+      <div id="kyc-status" class="kyc-status">ステータス取得中...</div>
+
+      <!-- 画像アップロードフォーム -->
+      <div id="kyc-form">
+        <div class="upload-section">
+          <label>本人確認書類（表面）</label>
+          <input type="file" id="front-file" name="files" accept="image/*">
+        </div>
+
+        <div class="upload-section">
+          <label>本人確認書類（裏面）</label>
+          <input type="file" id="back-file" name="files" accept="image/*">
+        </div>
+
+        <button class="btn btn-primary btn-submit" id="submit-kyc">
+          KYC を提出する
+        </button>
+
+        <p class="note">※ JPG/PNGなどの画像ファイルをアップロードしてください。</p>
+      </div>
     </div>
+  </section>
+</main>
 
-    <nav class="site-nav">
-      <a href="index.html" class="nav-link">TOP</a>
-      <a href="exchange.html" class="nav-link">トレード</a>
-      <a href="wallet.html" class="nav-link">ウォレット</a>
-      <a href="system-trade.html" class="nav-link">システム取引</a>
-      <a href="support.html" class="nav-link">サポート</a>
-      <a href="mypage.html" class="nav-link">マイページ</a>
-      <a href="kyc.html" class="nav-link active">KYC</a>
-      <a href="history.html" class="nav-link">取引履歴</a>
-    </nav>
+<script>
+const API_BASE_URL = "https://api.exchange-template.com";
 
-    <div class="header-actions">
-      <a href="login.html" class="btn btn-outline btn-sm">ログイン</a>
-      <a href="signup.html" class="btn btn-primary btn-sm">口座開設</a>
-    </div>
-  </header>
+async function apiGet(path) {
+  const res = await fetch(API_BASE_URL + path, { credentials: "include" });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
 
-  <main style="max-width:960px; margin:0 auto; padding:18px 20px 26px; display:flex; flex-direction:column; gap:14px;">
+async function apiPostForm(path, formData) {
+  const res = await fetch(API_BASE_URL + path, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+  const txt = await res.text();
+  if (!res.ok) throw new Error(txt);
+  return JSON.parse(txt);
+}
 
-    <!-- KYC ステータス -->
-    <section class="card">
-      <div class="card-header">
-        <div>
-          <div class="card-title">本人確認（KYC）ステータス</div>
-          <div class="card-sub">
-            APIと連動したKYCステータスを表示します。  
-          </div>
-        </div>
-        <div style="text-align:right;">
-          <div id="kyc-current-status" class="badge badge-warn">読み込み中...</div>
-        </div>
-      </div>
+// --- KYCステータス表示 ---
+async function loadKycStatus() {
+  const data = await apiGet("/kyc/status");
+  const status = data.status;
+  const statusEl = document.getElementById("kyc-status");
+  const msgEl = document.getElementById("kyc-msg");
 
-      <!-- 進行バー -->
-      <div class="progress">
-        <div class="step">
-          <div class="step-label">レベル1：基本情報</div>
-          <div class="step-bar"><div id="step1-bar" class="step-bar-fill" style="width:10%;"></div></div>
-          <div id="step1-status" class="step-status">確認中</div>
-        </div>
+  switch (status) {
+    case 0:
+      statusEl.textContent = "ステータス：未提出";
+      msgEl.textContent = "本人確認書類を提出してください。";
+      document.getElementById("kyc-form").style.display = "block";
+      break;
 
-        <div class="step">
-          <div class="step-label">レベル2：本人確認書類</div>
-          <div class="step-bar"><div id="step2-bar" class="step-bar-fill" style="width:10%;"></div></div>
-          <div id="step2-status" class="step-status">未提出</div>
-        </div>
+    case 1:
+      statusEl.textContent = "ステータス：提出済み（一次確認待ち）";
+      msgEl.textContent = "審査中です。追加提出が必要な場合はご連絡します。";
+      document.getElementById("kyc-form").style.display = "none";
+      break;
 
-        <div class="step">
-          <div class="step-label">レベル3：住所確認</div>
-          <div class="step-bar"><div id="step3-bar" class="step-bar-fill" style="width:10%;"></div></div>
-          <div id="step3-status" class="step-status">未着手</div>
-        </div>
-      </div>
-    </section>
+    case 2:
+      statusEl.textContent = "ステータス：審査中";
+      msgEl.textContent = "審査中です。結果をお待ちください。";
+      document.getElementById("kyc-form").style.display = "none";
+      break;
 
-    <!-- KYC 入力 -->
-    <section class="card">
-      <div class="steps-grid">
+    case 3:
+      statusEl.textContent = "ステータス：承認（一次）";
+      msgEl.textContent = "審査が進んでいます。最終完了をお待ちください。";
+      document.getElementById("kyc-form").style.display = "none";
+      break;
 
-        <!-- Level2：本人確認書類 -->
-        <div class="step-card">
-          <div class="step-card-header">
-            <div class="step-card-title">レベル2：本人確認書類</div>
-            <span id="kyc2-badge" class="badge badge-warn">未提出</span>
-          </div>
+    case 4:
+      statusEl.textContent = "ステータス：否認";
+      msgEl.textContent = "再提出してください。";
+      document.getElementById("kyc-form").style.display = "block";
+      break;
 
-          <div class="form-row">
-            <label>提出書類の種類</label>
-            <select id="kyc-doc-type">
-              <option value="driver_license">運転免許証</option>
-              <option value="mynumber">マイナンバーカード</option>
-              <option value="passport">パスポート</option>
-            </select>
-          </div>
+    case 5:
+      statusEl.textContent = "ステータス：KYC完了";
+      msgEl.textContent = "本人確認が完了しました。出金が可能です。";
+      document.getElementById("kyc-form").style.display = "none";
+      break;
 
-          <div class="upload-box">
-            表面・裏面の画像アップロード（デモ用 / 送信はAPI経由）
-          </div>
+    default:
+      statusEl.textContent = "ステータス：不明";
+      msgEl.textContent = "";
+      document.getElementById("kyc-form").style.display = "block";
+      break;
+  }
+}
 
-          <button id="kyc-submit-btn" class="btn-block">
-            書類を提出する
-          </button>
-        </div>
+// --- KYC提出 ---
+document.getElementById("submit-kyc").onclick = async () => {
+  const front = document.getElementById("front-file").files[0];
+  const back = document.getElementById("back-file").files[0];
+  const msg = document.getElementById("kyc-msg");
 
-        <!-- Level3：住所確認 -->
-        <div class="step-card">
-          <div class="step-card-header">
-            <div class="step-card-title">レベル3：住所確認</div>
-            <span id="kyc3-badge" class="badge">未提出</span>
-          </div>
+  if (!front || !back) {
+    msg.textContent = "両方の画像を選択してください。";
+    msg.style.color = "red";
+    return;
+  }
 
-          <div class="form-row">
-            <label>郵便番号</label>
-            <input type="text" id="kyc-postcode" placeholder="100-0001" />
-          </div>
-          <div class="form-row">
-            <label>住所</label>
-            <input type="text" id="kyc-address" placeholder="都道府県・市区町村・番地" />
-          </div>
+  const form = new FormData();
+form.append("files", front);
+form.append("files", back);
 
-          <div class="upload-box">
-            公共料金領収書など住所確認書類をアップロード（デモ）
-          </div>
 
-          <button id="kyc-submit-address" class="btn-block">
-            住所確認書類を提出する
-          </button>
-        </div>
+  try {
+    await apiPostForm("/kyc/submit", form);
+    msg.textContent = "KYCを提出しました。審査中です。";
+    msg.style.color = "green";
 
-      </div>
-    </section>
-  </main>
-
-  <!-- API連携 -->
-  <script>
-    const API_BASE_URL = "https://api.exchange-template.com";
-
-    /* -----------------------------------
-       KYC ステータス読み込み
-    ----------------------------------- */
-    async function loadKycStatus() {
-      try {
-        const res = await fetch(API_BASE_URL + "/kyc/status", {
-          method: "GET",
-          credentials: "include"
-        });
-
-        if (!res.ok) {
-          document.getElementById("kyc-current-status").textContent = "ログインしてください";
-          return;
-        }
-
-        const data = await res.json();
-        const status = data.status;
-
-        updateKycUI(status);
-
-      } catch (e) {
-        document.getElementById("kyc-current-status").textContent = "読み込みエラー";
-      }
-    }
-
-    /* -----------------------------------
-       UI 更新
-    ----------------------------------- */
-    function updateKycUI(status) {
-      const badge = document.getElementById("kyc-current-status");
-
-      if (status === "approved") {
-        badge.className = "badge badge-ok";
-        badge.textContent = "承認済み";
-
-        document.getElementById("step1-bar").style.width = "100%";
-        document.getElementById("step1-status").textContent = "完了";
-
-        document.getElementById("step2-bar").style.width = "100%";
-        document.getElementById("step2-status").textContent = "提出済み";
-
-        document.getElementById("step3-bar").style.width = "100%";
-        document.getElementById("step3-status").textContent = "提出済み";
-
-      } else if (status === "pending") {
-        badge.className = "badge badge-warn";
-        badge.textContent = "審査中";
-
-        document.getElementById("step1-bar").style.width = "100%";
-        document.getElementById("step1-status").textContent = "完了";
-
-        document.getElementById("step2-bar").style.width = "100%";
-        document.getElementById("step2-status").textContent = "提出済み";
-
-      } else {
-        badge.className = "badge badge-warn";
-        badge.textContent = "未提出";
-
-        document.getElementById("step1-bar").style.width = "30%";
-        document.getElementById("step1-status").textContent = "未完了";
-
-        document.getElementById("step2-bar").style.width = "10%";
-        document.getElementById("step2-status").textContent = "未提出";
-
-        document.getElementById("step3-bar").style.width = "10%";
-        document.getElementById("step3-status").textContent = "未着手";
-      }
-    }
-
-    /* -----------------------------------
-       KYC 提出 (POST /kyc/submit)
-    ----------------------------------- */
-    async function submitKyc() {
-      const docType = document.getElementById("kyc-doc-type").value;
-
-      try {
-        const res = await fetch(API_BASE_URL + "/kyc/submit", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: docType })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.message || "提出に失敗しました");
-
-        alert("書類提出が完了しました。");
-        loadKycStatus();
-
-      } catch (e) {
-        alert(e.message);
-      }
-    }
-
-    document.getElementById("kyc-submit-btn").addEventListener("click", submitKyc);
-
-    // Level3（住所確認）→ デモ扱い
-    document.getElementById("kyc-submit-address").addEventListener("click", () => {
-      alert("住所確認書類を提出しました（デモ）。");
-    });
-
-    /* 初回ロード */
     loadKycStatus();
-  </script>
+  } catch (e) {
+    msg.textContent = "KYC提出に失敗しました。";
+    msg.style.color = "red";
+  }
+};
+
+// 初期読み込み
+loadKycStatus().catch(() => {
+  document.getElementById("kyc-msg").textContent = "KYC情報の取得に失敗しました。";
+});
+</script>
 
 </body>
 </html>
-

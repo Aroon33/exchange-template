@@ -5,27 +5,29 @@
   <title>CryptoX Admin - 入金申請管理</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- 共通 + Admin 専用CSS -->
-   <link rel="stylesheet" href="../assets/css/style.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
+
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-title">メニュー</div>
     <ul class="nav-list">
-      <li class="nav-item"><a href="index.html" class="nav-link"><span class="nav-icon">🏠</span><span>ダッシュボード</span></a></li>
-      <li class="nav-item"><a href="tickets.html" class="nav-link"><span class="nav-icon">💬</span><span>問い合わせ管理</span></a></li>
-      <li class="nav-item"><a href="users.html" class="nav-link"><span class="nav-icon">👥</span><span>ユーザー一覧</span></a></li>
-      <li class="nav-item"><a href="trades.html" class="nav-link"><span class="nav-icon">📊</span><span>取引状況</span></a></li>
-      <li class="nav-item"><a href="kyc.html" class="nav-link"><span class="nav-icon">📊</span><span>KYC状況</span></a></li>
-      <li class="nav-item"><a href="deposit.html" class="nav-link active"><span class="nav-icon">➕</span><span>入金申請</span></a></li>
-      <li class="nav-item"><a href="withdraw.html" class="nav-link"><span class="nav-icon">➖</span><span>出金申請</span></a></li>
-      <li class="nav-item"><a href="group.html" class="nav-link"><span class="nav-icon">🧩</span><span>グループ管理</span></a></li>
-      <li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span><span>システム設定</span></a></li>
+      <li class="nav-item"><a href="index.html" class="nav-link"><span>🏠</span>ダッシュボード</a></li>
+      <li class="nav-item"><a href="tickets.html" class="nav-link"><span>💬</span>問い合わせ管理</a></li>
+      <li class="nav-item"><a href="users.html" class="nav-link"><span>👥</span>ユーザー一覧</a></li>
+      <li class="nav-item"><a href="trades.html" class="nav-link"><span>📊</span>取引状況</a></li>
+      <li class="nav-item"><a href="kyc.html" class="nav-link"><span>📋</span>KYC状況</a></li>
+      <li class="nav-item"><a href="deposit.html" class="nav-link active"><span>➕</span>入金申請</a></li>
+      <li class="nav-item"><a href="withdraw.html" class="nav-link"><span>➖</span>出金申請</a></li>
+      <li class="nav-item"><a href="group.html" class="nav-link"><span>🧩</span>グループ管理</a></li>
+      <li class="nav-item"><a href="settings.html" class="nav-link"><span>⚙️</span>システム設定</a></li>
     </ul>
-    <div class="sidebar-footer">CryptoX Admin<br>UI Demo &copy; 2025</div>
   </aside>
 
+  <!-- HEADER -->
   <header class="admin-header">
     <div class="admin-header-left">
       <div class="admin-logo-badge">AX</div>
@@ -35,451 +37,158 @@
       </div>
     </div>
     <div class="admin-header-right">
-      <span>管理者：admin@example.com</span>
-      <button class="btn btn-outline btn-sm" onclick="location.href='../login.html'">ログアウト（デモ）</button>
+      <span id="admin-user-label">管理者</span>
+      <button class="btn btn-outline btn-sm" onclick="location.href='../login.html'">ログアウト</button>
     </div>
   </header>
 
+  <!-- MAIN -->
   <main class="admin-main">
     <div class="admin-main-inner">
-      <div class="page-title">入金申請管理</div>
-      <div class="page-sub">
-        
+
+      <div class="page-title">入金申請一覧（PENDING）</div>
+
+      <!-- フィルター -->
+      <div style="margin:12px 0;">
+        <select id="status-filter" class="btn-sm">
+          <option value="ALL">すべて</option>
+          <option value="PENDING">申請中</option>
+          <option value="COMPLETED">完了</option>
+          <option value="CANCELED">キャンセル</option>
+        </select>
+        <button class="btn-sm" id="reload-btn">再読み込み</button>
       </div>
 
-      <!-- Group cards -->
-      <section class="group-grid" id="group-grid">
-        <!-- JSで生成 -->
-      </section>
+      <!-- TABLE -->
+      <div class="card" style="margin-top:16px;">
+        <table class="table" style="width:100%; font-size:13px;">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>申請日時</th>
+              <th>名前</th>
+              <th>method</th>
+              <th>currency</th>
+              <th>金額</th>
+              <th>更新日時</th>
+              <th>ステータス</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="deposit-table-body">
+            <tr><td colspan="9" style="text-align:center;color:#777;">読み込み中...</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-      <!-- フィルタ -->
-      <section class="filters-card">
-        <div class="filters-row">
-          <div>
-            <div class="filters-title">フィルター</div>
-            <div class="filters-meta">
-              ステータス・ユーザーID・通貨・期間で入金申請を絞り込みます。
-            </div>
-          </div>
-          <div class="status-tabs">
-            <button class="status-tab-btn active" data-status="all">すべて</button>
-            <button class="status-tab-btn" data-status="pending">申請中</button>
-            <button class="status-tab-btn" data-status="completed">完了</button>
-            <button class="status-tab-btn" data-status="user_cancel">ユーザー取消</button>
-            <button class="status-tab-btn" data-status="admin_cancel">管理取消</button>
-          </div>
-        </div>
-        <div class="filters-grid">
-          <div class="field">
-            <label>ユーザーID</label>
-            <input type="text" id="f-user" placeholder="例：user-demo-001" />
-          </div>
-          <div class="field">
-            <label>通貨</label>
-            <select id="f-currency">
-              <option value="all">すべて</option>
-              <option value="JPY">JPY</option>
-              <option value="BTC">BTC</option>
-              <option value="ETH">ETH</option>
-              <option value="USDT">USDT</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>期間（From）</label>
-            <input type="date" id="f-from" />
-          </div>
-          <div class="field">
-            <label>期間（To）</label>
-            <input type="date" id="f-to" />
-          </div>
-        </div>
-      </section>
-
-      <section class="pane-grid">
-        <!-- 左：申請一覧 -->
-        <div class="card">
-          <div class="card-header-row">
-            <div>
-              <div class="card-title-small">入金申請一覧</div>
-              <div class="card-sub-small" id="list-count">0件</div>
-            </div>
-            <button class="btn-xs" id="btn-refresh">再読み込み</button>
-          </div>
-          <div class="list-box" id="list-box"></div>
-        </div>
-
-        <!-- 右：詳細 -->
-        <div class="card">
-          <div class="detail-header">
-            <div>
-              <div class="detail-title" id="detail-title">申請を選択してください</div>
-              <div class="detail-meta" id="detail-meta">
-                左の一覧から出金申請を選択すると、詳細とロック状況が表示されます。
-              </div>
-            </div>
-            <div>
-              <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">ステータス</div>
-              <select class="status-select" id="status-select" disabled>
-                <option value="pending">申請中</option>
-                <option value="completed">完了</option>
-                <option value="user_cancel">ユーザーキャンセル</option>
-                <option value="admin_cancel">管理側キャンセル</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="info-grid">
-            <div class="info-block">
-              <div class="info-label">申請情報</div>
-              <div class="info-value" id="info-user">ユーザーID: -</div>
-              <div class="info-value" id="info-user">名前: -</div>
-              <div class="wallet-row" id="info-amount">通貨: - / 金額: -</div>
-              <div class="wallet-row" id="info-ids">ID: - / method: -</div>
-            </div>
-            <div class="info-block">
-              <div class="info-label">ユーザー残高（wallet_store）</div>
-              <div class="wallet-row" id="wallet-total">総残高: -</div>
-              <div class="wallet-row" id="wallet-available">利用可能残高: -</div>
-            </div>
-          </div>
-
-          <div class="toolbar" id="toolbar" style="display:none;">
-            <button class="btn-xs btn-xs-primary" id="btn-apply-status">
-              ステータスを更新（残高反映）
-            </button>
-          </div>
-
-          <div class="note">
-            ステータス遷移と残高反映（デモ用ロジック）：<br>
-            
-          </div>
-        </div>
-      </section>
     </div>
   </main>
 
   <div class="toast" id="toast"></div>
+
+  <!-- SCRIPT -->
   <script>
-    // ==== 設定（必要に応じて変更）====
-    // APIサーバーのURL
-    const API_BASE = 'http://localhost:3000'; 
-    // 本番なら 'https://api.exchange-template.com' などに変更
-
-    // ==== DOM 参照 ====
-    const listBoxEl     = document.getElementById("list-box");
-    const listCountEl   = document.getElementById("list-count");
-    const statusTabs    = document.querySelectorAll(".status-tab-btn");
-    const statusSelectEl= document.getElementById("status-select");
-    const detailTitleEl = document.getElementById("detail-title");
-    const detailMetaEl  = document.getElementById("detail-meta");
-    const infoUserEl    = document.getElementById("info-user");
-    const infoAmountEl  = document.getElementById("info-amount");
-    const infoIdsEl     = document.getElementById("info-ids");
-    const walletTotalEl = document.getElementById("wallet-total");
-    const walletAvailEl = document.getElementById("wallet-available");
-    const btnApplyStatus= document.getElementById("btn-apply-status");
-    const btnRefresh    = document.getElementById("btn-refresh");
-    const toolbarEl     = document.getElementById("toolbar");
-    const toastEl       = document.getElementById("toast");
-
-    const fUser     = document.getElementById("f-user");
-    const fCurrency = document.getElementById("f-currency");
-    const fFrom     = document.getElementById("f-from");
-    const fTo       = document.getElementById("f-to");
-
-    // ==== 状態 ====
-    let allDeposits = [];
-    let filtered    = [];
-    let currentId   = null;
-    let currentStatusFilter = "all";
+    const API_BASE = "https://api.exchange-template.com";
 
     function showToast(msg) {
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      setTimeout(() => toastEl.classList.remove("show"), 2200);
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2000);
     }
 
     function formatDate(iso) {
       if (!iso) return "-";
-      const d = new Date(iso);
-      return d.toLocaleString("ja-JP", { hour12: false });
+      return new Date(iso).toLocaleString("ja-JP", { hour12:false });
     }
 
-    function formatAmount(amount) {
-      if (amount == null) return "-";
-      const num = Number(amount);
-      if (isNaN(num)) return String(amount);
-      return num.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 8,
-      }) + " USDT"; // 通貨情報はAPIに無いので、必要に応じて修正
+    function formatAmount(a) {
+      const num = Number(a);
+      if (isNaN(num)) return a;
+      return num.toLocaleString("en-US", { minimumFractionDigits:2, maximumFractionDigits:8 });
     }
 
-    function statusLabelFor(status) {
-      switch (status) {
-        case "PENDING":   return "申請中";
-        case "COMPLETED": return "完了";
-        case "CANCELED":  return "キャンセル";
-        default:          return status;
-      }
-    }
-
-    // ==== API ====
-
+    // GET wrapper
     async function apiGet(path) {
       const res = await fetch(API_BASE + path, {
         credentials: "include",
       });
-      if (!res.ok) {
-        const txt = await res.text();
-        console.error("GET " + path + " failed:", txt);
-        throw new Error("GET " + path + " failed");
-      }
-      return res.json();
+      const txt = await res.text();
+      if (!res.ok) throw new Error(txt);
+      return JSON.parse(txt);
     }
 
+    // POST wrapper
     async function apiPost(path, body) {
       const res = await fetch(API_BASE + path, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: body ? JSON.stringify(body) : "{}",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       });
       const txt = await res.text();
-      let json;
-      try { json = txt ? JSON.parse(txt) : {}; } catch(e) { json = { raw: txt }; }
-
-      if (!res.ok) {
-        console.error("POST " + path + " failed:", json);
-        throw new Error("POST " + path + " failed");
-      }
-      return json;
+      if (!res.ok) throw new Error(txt);
+      return JSON.parse(txt);
     }
 
-    // PENDING入金一覧を取得
-    async function loadDepositsFromApi() {
-      // 現状は PENDINGのみ。完了分なども見たい場合はAPI拡張が必要
-      const data = await apiGet("/deposit/pending");
-      allDeposits = Array.isArray(data) ? data : [];
-      applyFilters();
-    }
-
-    // ユーザーのウォレット残高（簡易）を取得
-    async function loadWalletForUser(userId) {
-      // 本来は /admin/users/:id/wallet のようなAPIが理想だが、
-      // ここでは簡略化して「ユーザー自身の /wallet 相当の情報は表示なし」にする。
-      // 必要であればバックエンドに別途APIを用意する。
-      return null;
-    }
-
-    // ==== フィルタ & 表示 ====
-
-    function applyFilters() {
-      const uid = fUser.value.trim();
-      const cur = fCurrency.value;
-      const fromV = fFrom.value;
-      const toV   = fTo.value;
-
-      filtered = allDeposits.filter((t) => {
-        // status filter
-        if (currentStatusFilter !== "all") {
-          if (currentStatusFilter === "pending" && t.status !== "PENDING") return false;
-          if (currentStatusFilter === "completed" && t.status !== "COMPLETED") return false;
-          if (currentStatusFilter === "user_cancel" && t.status !== "CANCELED") return false;
-          if (currentStatusFilter === "admin_cancel" && t.status !== "CANCELED") return false;
-        }
-
-        // user filter（数値userIdをそのまま文字列としてフィルタ）
-        if (uid) {
-          if (String(t.userId).indexOf(uid) === -1) return false;
-        }
-
-        // currency filter（APIに通貨情報が無いので、今は無効 or 固定）
-        if (cur !== "all") {
-          // 必要であればバックエンド側に currency カラムを追加して対応
-          return false;
-        }
-
-        // 日付フィルタ
-        const createdTs = t.createdAt ? new Date(t.createdAt).getTime() : 0;
-        if (fromV) {
-          const ts = new Date(fromV + "T00:00:00").getTime();
-          if (createdTs < ts) return false;
-        }
-        if (toV) {
-          const ts = new Date(toV + "T23:59:59").getTime();
-          if (createdTs > ts) return false;
-        }
-
-        return true;
-      });
-
-      filtered.sort((a, b) => {
-        const ta = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
-        const tb = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
-        return tb - ta;
-      });
-
-      renderList();
-    }
-
-    function renderList() {
-      listBoxEl.innerHTML = "";
-      listCountEl.textContent = filtered.length + "件";
-
-      if (filtered.length === 0) {
-        listBoxEl.innerHTML =
-          '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:30px 4px;">該当する入金申請はありません。</div>';
-        currentId = null;
-        renderDetail();
-        return;
-      }
-
-      filtered.forEach((t) => {
-        const div = document.createElement("div");
-        div.className = "item-row" + (t.id === currentId ? " active" : "");
-        div.dataset.id = t.id;
-
-        const created = formatDate(t.createdAt);
-        const statusLabel = statusLabelFor(t.status);
-
-        div.innerHTML = `
-          <div>
-            <div class="item-title">User #${t.userId}</div>
-            <div class="item-meta">
-              金額: ${formatAmount(t.amount)}<br>
-              作成: ${created}
-            </div>
-          </div>
-          <div style="text-align:right;">
-            <div class="status-chip">${statusLabel}</div>
-            <div class="item-meta">ID: ${t.id}</div>
-          </div>
-        `;
-
-        div.addEventListener("click", () => {
-          currentId = t.id;
-          renderList();
-          renderDetail();
-        });
-
-        listBoxEl.appendChild(div);
-      });
-
-      if (!currentId && filtered.length > 0) {
-        currentId = filtered[0].id;
-        renderList();
-        renderDetail();
-      }
-    }
-
-    async function renderDetail() {
-      const t = filtered.find((x) => x.id === currentId);
-      if (!t) {
-        detailTitleEl.textContent = "申請を選択してください";
-        detailMetaEl.textContent =
-          "左の一覧から入金申請を選択すると、詳細が表示されます。";
-        infoUserEl.textContent    = "ユーザーID: -";
-        infoAmountEl.textContent  = "通貨: - / 金額: -";
-        infoIdsEl.textContent     = "ID: -";
-        walletTotalEl.textContent = "総残高: -";
-        walletAvailEl.textContent = "利用可能残高: -";
-        statusSelectEl.disabled   = true;
-        toolbarEl.style.display   = "none";
-        return;
-      }
-
-      detailTitleEl.textContent = `入金申請 ID: ${t.id}`;
-      detailMetaEl.innerHTML =
-        `<span>User ID: ${t.userId}</span>` +
-        `<span>Created: ${formatDate(t.createdAt)}</span><br>` +
-        `<span>Updated: ${formatDate(t.updatedAt)}</span>`;
-
-      infoUserEl.textContent   = `ユーザーID: ${t.userId}`;
-      infoAmountEl.textContent = `通貨: USDT / 金額: ${formatAmount(t.amount)}`;
-      infoIdsEl.textContent    = `ID: ${t.id}`;
-
-      // ウォレット情報（今は簡略化して "-" 表示）
-      walletTotalEl.textContent = "総残高: -";
-      walletAvailEl.textContent = "利用可能残高: -";
-
-      statusSelectEl.value = "completed"; // 「承認」前提
-      statusSelectEl.disabled = false;
-      toolbarEl.style.display = "block";
-    }
-
-    // ==== ステータス更新（承認） ====
-
-    async function applyStatus() {
-      const t = filtered.find((x) => x.id === currentId);
-      if (!t) {
-        showToast("申請が選択されていません。");
-        return;
-      }
-
-      const newStatusUi = statusSelectEl.value;
-      if (newStatusUi !== "completed") {
-        showToast("現在は「完了（承認）」のみAPIで反映します。");
-        return;
-      }
-
+    // 承認処理
+    async function approveDeposit(id) {
       try {
-        await apiPost("/deposit/approve", { id: t.id });
-        showToast("入金申請を承認しました。ウォレットに反映済みです。");
-        await loadDepositsFromApi();
+        await apiPost("/deposit/approve", { id });
+        showToast("承認しました");
+        loadDeposits();
       } catch (e) {
         console.error(e);
-        showToast("ステータス更新に失敗しました。");
+        showToast("承認に失敗しました");
       }
     }
 
-    // ==== イベント ====
+    // 描画
+    function renderTable(list) {
+      const tbody = document.getElementById("deposit-table-body");
+      tbody.innerHTML = "";
 
-    statusTabs.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        statusTabs.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentStatusFilter = btn.dataset.status || "all";
-        applyFilters();
+      if (!list.length) {
+        tbody.innerHTML =
+          '<tr><td colspan="9" style="text-align:center;color:#777;">申請なし</td></tr>';
+        return;
+      }
+
+      list.forEach(t => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.id}</td>
+          <td>${formatDate(t.createdAt)}</td>
+          <td>${t.user?.name ?? "-"}</td>
+          <td>${t.method ?? "-"}</td>
+          <td>${t.currency ?? "-"}</td>
+          <td>${formatAmount(t.amount)}</td>
+          <td>${formatDate(t.updatedAt)}</td>
+          <td>${t.status}</td>
+          <td>
+            <button class="btn-xs btn-xs-primary" onclick="approveDeposit(${t.id})">
+              承認
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
       });
-    });
-
-    [fUser, fCurrency, fFrom, fTo].forEach((el) =>
-      el.addEventListener("change", applyFilters)
-    );
-
-    btnApplyStatus.addEventListener("click", () => {
-      applyStatus();
-    });
-    btnRefresh.addEventListener("click", () => {
-      loadDepositsFromApi().catch((e) => {
-        console.error(e);
-        showToast("入金一覧の読み込みに失敗しました。");
-      });
-    });
-
-    // ==== 初期化 ====
-
-    function initDates() {
-      const today = new Date();
-      const isoToday = today.toISOString().slice(0, 10);
-      const weekAgo  = new Date(today.getTime() - 6*24*60*60*1000);
-      fTo.value   = isoToday;
-      fFrom.value = weekAgo.toISOString().slice(0, 10);
     }
 
-    (function init() {
-      initDates();
-      loadDepositsFromApi().catch((e) => {
+    // データ取得
+    async function loadDeposits() {
+      try {
+        const list = await apiGet("/deposit/pending");
+        renderTable(list);
+      } catch (e) {
         console.error(e);
-        showToast("入金一覧の読み込みに失敗しました。");
-      });
-    })();
-  </script>
+        showToast("取得に失敗しました");
+      }
+    }
 
+    // 初期化
+    loadDeposits();
+  </script>
 
 </body>
 </html>
-

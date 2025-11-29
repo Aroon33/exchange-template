@@ -5,264 +5,231 @@
   <title>CryptoX Admin - ダッシュボード</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- 共通 + Admin 専用CSS -->
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="stylesheet" href="../assets/css/admin.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+
+  <style>
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .dash-card {
+      padding: 18px;
+      border-radius: 12px;
+      background: white;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .dash-title {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .dash-value {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--primary);
+    }
+
+    .filter-box {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .filter-box input {
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-soft);
+    }
+
+    .filter-btn {
+      padding: 8px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
-  <!-- サイドバー -->
-  <aside class="sidebar">
-    <div class="sidebar-title">メニュー</div>
-    <ul class="nav-list">
-      <li class="nav-item">
-        <a href="index.html" class="nav-link active">
-          <span class="nav-icon">🏠</span><span>ダッシュボード</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="tickets.html" class="nav-link">
-          <span class="nav-icon">💬</span><span>問い合わせ管理</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="users.html" class="nav-link">
-          <span class="nav-icon">👥</span><span>ユーザー一覧</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="trades.html" class="nav-link">
-          <span class="nav-icon">📊</span><span>取引状況</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="kyc.html" class="nav-link">
-          <span class="nav-icon">📊</span><span>KYC状況</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="deposit.html" class="nav-link">
-          <span class="nav-icon">➕</span><span>入金申請</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="withdraw.html" class="nav-link">
-          <span class="nav-icon">➖</span><span>出金申請</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="group.html" class="nav-link">
-          <span class="nav-icon">🧩</span><span>グループ管理</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="settings.html" class="nav-link">
-          <span class="nav-icon">⚙️</span><span>システム設定</span>
-        </a>
-      </li>
-    </ul>
-    <div class="sidebar-footer">
-      CryptoX Admin<br />UI Demo &copy; 2025
-    </div>
-  </aside>
 
-  <!-- ヘッダー -->
-  <header class="admin-header">
-    <div class="admin-header-left">
-      <div class="admin-logo-badge">AX</div>
-      <div>
-        <div class="admin-logo-text">Admin Console</div>
-        <div class="admin-logo-sub">CryptoX Exchange</div>
-      </div>
-    </div>
-    <div class="admin-header-right">
-      <span>管理者：admin@example.com</span>
-      <button class="btn btn-outline btn-sm" onclick="location.href='../login.html'">ログアウト（デモ）</button>
-    </div>
-  </header>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-title">メニュー</div>
+  <ul class="nav-list">
+    <li class="nav-item"><a href="index.html" class="nav-link">🏠 ダッシュボード</a></li>
+    <li class="nav-item"><a href="tickets.html" class="nav-link active">💬 問い合わせ管理</a></li>
+    <li class="nav-item"><a href="users.html" class="nav-link">👥 ユーザー一覧</a></li>
+    <li class="nav-item"><a href="trades.html" class="nav-link">📊 取引状況</a></li>
+    <li class="nav-item"><a href="kyc.html" class="nav-link">📋 KYC状況</a></li>
+    <li class="nav-item"><a href="deposit.html" class="nav-link">➕ 入金申請</a></li>
+    <li class="nav-item"><a href="withdraw.html" class="nav-link">➖ 出金申請</a></li>
+    <li class="nav-item"><a href="group.html" class="nav-link">🧩 グループ管理</a></li>
+    <li class="nav-item"><a href="settings.html" class="nav-link">⚙️ システム設定</a></li>
+  </ul>
+</aside>
 
-  <!-- メインコンテンツ -->
-  <main class="admin-main">
-    <div class="admin-main-inner">
-      <div class="page-title">ダッシュボード</div>
-      <div class="page-sub">
-      </div>
-
-      <!-- 検索・フィルター -->
-      <section class="search-card">
-        <div class="search-row-top">
-          <div>
-            <div class="search-title">キーワード検索</div>
-            <div class="search-meta">
-              ユーザー名 / メール /  日付。
-            </div>
-          </div>
-          <span class="tag">対象：ユーザー / 入出金 / 問い合わせ</span>
-        </div>
-
-        <div class="search-grid">
-          <div class="form-field">
-            <label>キーワード</label>
-            <input type="text" id="q-text" placeholder="例：Taro / user@example.com / user-demo-001" />
-          </div>
-          <div class="form-field">
-            <label>紹介コード</label>
-            <input type="text" id="q-affiliate" placeholder="例：AFF-12345" />
-          </div>
-          <div class="form-field">
-            <label>期間（From）</label>
-            <input type="date" id="q-from" />
-          </div>
-          <div class="form-field">
-            <label>期間（To）</label>
-            <input type="date" id="q-to" />
-          </div>
-        </div>
-
-        <div class="search-actions">
-          <button class="btn-xs" id="btn-clear">条件クリア</button>
-          <button class="btn-xs btn-xs-primary" id="btn-search">検索</button>
-        </div>
-      </section>
-
-<section class="card" style="margin-bottom: 20px;">
-  <h1 class="card-title">ダッシュボード</h1>
-  <p class="card-sub"></p>
-
-  <div class="info-grid">
-    <div class="info-row">
-      <span class="info-label">総ユーザー数</span>
-      <span class="info-value" id="admin-total-users">-</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">合計口座残高</span>
-      <span class="info-value" id="admin-total-balance">-</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">入金申請（PENDING）</span>
-      <span class="info-value" id="admin-pending-deposits">-</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">出金申請（PENDING）</span>
-      <span class="info-value" id="admin-pending-withdraws">-</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">KYC未処理件数</span>
-      <span class="info-value" id="admin-pending-kyc">-</span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">未対応チケット数</span>
-      <span class="info-value" id="admin-open-tickets">-</span>
+<header class="admin-header">
+  <div class="admin-header-left">
+    <div class="admin-logo-badge">AX</div>
+    <div>
+      <div class="admin-logo-text">Admin Console</div>
+      <div class="admin-logo-sub">ダッシュボード</div>
     </div>
   </div>
+  <div class="admin-header-right">
+    <button class="btn btn-outline btn-sm" onclick="doLogout()">ログアウト</button>
+  </div>
+</header>
 
-  <p id="admin-dashboard-message" class="muted" style="margin-top: 8px;"></p>
-</section>
 
+<main class="admin-main">
+  <div class="admin-main-inner">
 
-      <!-- サマリー -->
-      <section class="summary-grid">
-        <div class="summary-card">
-          <div class="admin-total-users">総ユーザー数（デモ）</div>
-          <div class="summary-value" id="admin-total-users">0</div>
-          <div class="summary-sub">本番環境ではDBから取得</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">未対応問い合わせ</div>
-          <div class="summary-value" id="sum-tickets-new">0</div>
-          <div class="summary-sub">status = new の件数</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">入金申請中</div>
-          <div class="summary-value" id="admin-pending-deposits">0</div>
-          <div class="summary-sub">pending 入金申請（デモ）</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">出金申請中</div>
-          <div class="summary-value" id="admin-pending-withdraws">0</div>
-          <div class="summary-sub">pending 出金申請（デモ）</div>
-        </div>
-      </section>
+    <h1 class="page-title">ダッシュボード</h1>
 
-      <!-- 情報一覧テーブル -->
-      <section class="table-card">
-        <div class="table-header-row">
-          <div class="table-title">ユーザー / 申請 / 問い合わせ 一覧（サンプル）</div>
-          <div class="table-meta" id="table-meta">0件を表示中</div>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th class="sortable" data-sort-key="createdAt">作成日時<span class="sort-indicator"></span></th>
-              <th class="sortable" data-sort-key="type">種別<span class="sort-indicator"></span></th>
-              <th class="sortable" data-sort-key="nameOrTitle">名前 / タイトル<span class="sort-indicator"></span></th>
-              <th class="sortable" data-sort-key="userId">ユーザーID<span class="sort-indicator"></span></th>
-              <th class="sortable" data-sort-key="affiliateCode">アフィリコード<span class="sort-indicator"></span></th>
-              <th class="sortable" data-sort-key="amount" style="text-align:right;">金額（USD）<span class="sort-indicator"></span></th>
-              <th class="sortable" data-sort-key="statusLabel">ステータス<span class="sort-indicator"></span></th>
-            </tr>
-          </thead>
-          <tbody id="table-body"></tbody>
-        </table>
-      </section>
+    <!-- フィルター -->
+    <div class="filter-box">
+      <div>
+        <label>期間（From）</label><br>
+        <input type="date" id="from-date" />
+      </div>
+      <div>
+        <label>期間（To）</label><br>
+        <input type="date" id="to-date" />
+      </div>
+      <button class="filter-btn" onclick="loadDashboard()">更新</button>
     </div>
-  </main>
 
-  <script>
-    const ADMIN_API_BASE = "https://api.exchange-template.com";
+    <!-- ダッシュボードカード -->
+    <div class="dash-grid">
 
-    const elTotalUsers   = document.getElementById("admin-total-users");
-    const elTotalBalance = document.getElementById("admin-total-balance");
-    const elPendDep      = document.getElementById("admin-pending-deposits");
-    const elPendWit      = document.getElementById("admin-pending-withdraws");
-    const elPendKyc      = document.getElementById("admin-pending-kyc");
-    const elOpenTickets  = document.getElementById("admin-open-tickets");
-    const elMsg          = document.getElementById("admin-dashboard-message");
+      <div class="dash-card">
+        <div class="dash-title">総ユーザー数</div>
+        <div class="dash-value" id="d-total-users">-</div>
+      </div>
 
-    async function adminApiGet(path) {
-      const res = await fetch(ADMIN_API_BASE + path, {
-        credentials: "include",
-      });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error("GET " + path + " failed: " + txt);
-      }
-      return res.json();
-    }
+      <div class="dash-card">
+        <div class="dash-title">総口座残高</div>
+        <div class="dash-value" id="d-total-balance">-</div>
+      </div>
 
-    function fmtAmount(v) {
-      if (v == null) return "-";
-      const n = Number(v);
-      if (isNaN(n)) return String(v);
-      return n.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 8,
-      });
-    }
+      <div class="dash-card">
+        <div class="dash-title">口座開設（期間）</div>
+        <div class="dash-value" id="d-new-users">-</div>
+      </div>
 
-    (async function initAdminDashboard() {
-      try {
-        const data = await adminApiGet("/admin/overview");
+      <div class="dash-card">
+        <div class="dash-title">入金合計（期間）</div>
+        <div class="dash-value" id="d-deposit-sum">-</div>
+      </div>
 
-        if (elTotalUsers)   elTotalUsers.textContent   = String(data.totalUsers ?? 0);
-        if (elTotalBalance) elTotalBalance.textContent = fmtAmount(data.totalBalance ?? 0);
-        if (elPendDep)      elPendDep.textContent      = String(data.pendingDeposits ?? 0);
-        if (elPendWit)      elPendWit.textContent      = String(data.pendingWithdraws ?? 0);
-        if (elPendKyc)      elPendKyc.textContent      = String(data.pendingKyc ?? 0);
-        if (elOpenTickets)  elOpenTickets.textContent  = String(data.openTickets ?? 0);
+      <div class="dash-card">
+        <div class="dash-title">出金合計（期間）</div>
+        <div class="dash-value" id="d-withdraw-sum">-</div>
+      </div>
 
-        if (elMsg) {
-          elMsg.textContent = "ダッシュボード情報を更新しました。";
-          elMsg.style.color = "green";
-        }
-      } catch (e) {
-        console.error(e);
-        if (elMsg) {
-          elMsg.textContent = "ダッシュボード情報の取得に失敗しました。ログイン状態と権限を確認してください。";
-          elMsg.style.color = "red";
-        }
-      }
-    })();
-  </script>
+      <div class="dash-card">
+        <div class="dash-title">入金申請 Pending</div>
+        <div class="dash-value" id="d-deposit-pending">-</div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-title">出金申請 Pending</div>
+        <div class="dash-value" id="d-withdraw-pending">-</div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-title">KYC 未処理</div>
+        <div class="dash-value" id="d-kyc-pending">-</div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-title">問い合わせ 未処理</div>
+        <div class="dash-value" id="d-ticket-pending">-</div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script>
+const API_BASE = "https://api.exchange-template.com";
+
+/* ▼ ログアウト処理 */
+async function doLogout() {
+  await fetch(API_BASE + "/auth/logout", {
+    method: "POST",
+    credentials: "include",
+  });
+  window.location.href = "../login.html";
+}
+
+/* ▼ 過去30日をデフォルト期間に設定 */
+function initDates() {
+  const to = new Date();
+  const from = new Date();
+  from.setDate(to.getDate() - 30);
+
+  document.getElementById("from-date").value = from.toISOString().slice(0, 10);
+  document.getElementById("to-date").value = to.toISOString().slice(0, 10);
+}
+
+/* ▼ API GET */
+async function apiGet(path) {
+  const res = await fetch(API_BASE + path, { credentials: "include" });
+  if (res.status === 401) {
+    // 認証切れ → ログインへ
+    doLogout();
+  }
+  const txt = await res.text();
+  if (!res.ok) throw new Error(txt);
+  return JSON.parse(txt);
+}
+
+/* ▼ ダッシュボードデータを読み込み */
+async function loadDashboard() {
+  const from = document.getElementById("from-date").value;
+  const to   = document.getElementById("to-date").value;
+
+  const data = await apiGet(`/admin/dashboard?from=${from}&to=${to}`);
+
+  // ===== メイン統計 =====
+  document.getElementById("d-total-users").textContent      = data.totalUsers;
+  document.getElementById("d-total-balance").textContent    = data.totalBalance;
+  document.getElementById("d-new-users").textContent        = data.newUsers;
+  document.getElementById("d-deposit-sum").textContent      = data.depositSum;
+  document.getElementById("d-withdraw-sum").textContent     = data.withdrawSum;
+
+  // ===== PENDING counts =====
+  document.getElementById("d-deposit-pending").textContent  = data.pendingDeposits;
+  document.getElementById("d-withdraw-pending").textContent = data.pendingWithdraws;
+  document.getElementById("d-kyc-pending").textContent      = data.pendingKyc;
+  document.getElementById("d-ticket-pending").textContent   = data.openTickets;
+
+  document.getElementById("dashboard-message").textContent = "最新情報を取得しました。";
+}
+
+/* 初期化 */
+initDates();
+loadDashboard();
+
+// ▼ 再読み込みイベント
+document.getElementById("btn-refresh").addEventListener("click", loadDashboard);
+</script>
+
+
 </body>
 </html>
-

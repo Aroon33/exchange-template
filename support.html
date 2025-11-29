@@ -98,195 +98,131 @@
 
   <!-- API連携 -->
   <script>
-    const API_BASE_URL = "https://api.exchange-template.com";
+const API_BASE_URL = "https://api.exchange-template.com";
 
-    const ticketListEl = document.getElementById("support-ticket-list");
-    const messageListEl= document.getElementById("support-messages");
-    const newTitleEl   = document.getElementById("support-new-title");
-    const newBodyEl    = document.getElementById("support-new-body");
-    const newSendBtn   = document.getElementById("support-new-send");
+// === DOM Elements ===
+const newTitleEl   = document.getElementById("new-title");
+const newBodyEl    = document.getElementById("new-body");
+const newSendBtn   = document.getElementById("btn-create-thread");
 
-    const replyBodyEl  = document.getElementById("support-reply-body");
-    const replySendBtn = document.getElementById("support-reply-send");
+const threadListEl = document.getElementById("thread-list");
 
-    const statusEl     = document.getElementById("support-status");
+const chatWindowEl = document.getElementById("chat-window");
+const chatTitleEl  = document.getElementById("chat-title");
+const chatSubEl    = document.getElementById("chat-sub");
+const chatStatusEl = document.getElementById("chat-status-pill");
 
-    let currentTicketId = null;
-    let allTickets      = [];
+const chatInputEl  = document.getElementById("chat-input");
+const chatSendBtn  = document.getElementById("btn-send-msg");
 
-    function showStatus(msg, ok = true) {
-      if (!statusEl) return;
-      statusEl.textContent = msg;
-      statusEl.style.color = ok ? "green" : "red";
-    }
+let currentTicketId = null;
 
-    async function apiGet(path) {
-      const res = await fetch(API_BASE_URL + path, {
-        credentials: "include",
-      });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error("GET " + path + " failed: " + txt);
-      }
-      return res.json();
-    }
+// ===== API Helpers =====
 
-    async function apiPost(path, body) {
-      const res = await fetch(API_BASE_URL + path, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body || {}),
-      });
-      const txt = await res.text();
-      let json;
-      try { json = txt ? JSON.parse(txt) : {}; } catch { json = { raw: txt }; }
-      if (!res.ok) {
-        throw new Error("POST " + path + " failed: " + txt);
-      }
-      return json;
-    }
+async function apiGet(path) {
+  const res = await fetch(API_BASE_URL + path, { credentials: "include" });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
 
-    function fmtDate(iso) {
-      if (!iso) return "-";
-      return new Date(iso).toLocaleString("ja-JP", { hour12: false });
-    }
+async function apiPost(path, body) {
+  const res = await fetch(API_BASE_URL + path, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body || {}),
+  });
+  const txt = await res.text();
+  try { return JSON.parse(txt); } catch { return { raw: txt }; }
+}
 
-    async function loadTickets() {
-      const data = await apiGet("/tickets");
-      allTickets = Array.isArray(data) ? data : [];
-      renderTicketList();
-    }
+// ===== Load Ticket List =====
 
-    function renderTicketList() {
-      if (!ticketListEl) return;
-      ticketListEl.innerHTML = "";
+async function loadTickets() {
+  const tickets = await apiGet("/tickets");
 
-      if (!allTickets.length) {
-        ticketListEl.innerHTML =
-          '<div class="muted" style="padding:8px 0;">まだチケットはありません。</div>';
-        currentTicketId = null;
-        messageListEl.innerHTML = "";
-        return;
-      }
+  threadListEl.innerHTML = "";
 
-      allTickets.forEach((t) => {
-        const row = document.createElement("div");
-        row.className = "support-ticket-row" + (t.id === currentTicketId ? " active" : "");
-        row.dataset.id = t.id;
-        row.innerHTML = `
-          <div class="support-ticket-title">[${t.status}] ${t.title}</div>
-          <div class="support-ticket-meta">
-            ID: ${t.id} ／ 作成: ${fmtDate(t.createdAt)}
-          </div>
-        `;
-        row.addEventListener("click", () => {
-          currentTicketId = t.id;
-          renderTicketList();
-          loadMessages(t.id);
-        });
-        ticketListEl.appendChild(row);
-      });
+  if (!tickets.length) {
+    threadListEl.innerHTML =
+      '<div class="muted" style="padding:8px 0;">問い合わせはまだありません。</div>';
+    return;
+  }
 
-      if (!currentTicketId && allTickets.length > 0) {
-        currentTicketId = allTickets[0].id;
-        renderTicketList();
-        loadMessages(currentTicketId);
-      }
-    }
+  tickets.forEach(t => {
+    const div = document.createElement("div");
+    div.className = "thread-row";
+    div.innerHTML = `
+      <div class="thread-title">[${t.status}] ${t.title}</div>
+      <div class="thread-meta">ID:${t.id} ／ ${new Date(t.createdAt).toLocaleString("ja-JP")}</div>
+    `;
+    div.addEventListener("click", () => {
+      currentTicketId = t.id;
+      loadMessages();
+    });
+    threadListEl.appendChild(div);
+  });
+}
 
-    async function loadMessages(ticketId) {
-      if (!messageListEl) return;
-      try {
-        const msgs = await apiGet(`/tickets/${ticketId}/messages`);
-        messageListEl.innerHTML = "";
+// ===== Create Ticket =====
 
-        if (!msgs.length) {
-          messageListEl.innerHTML =
-            '<div class="muted" style="padding:8px 0;">まだメッセージはありません。</div>';
-          return;
-        }
+async function createTicket() {
+  const title = newTitleEl.value.trim();
+  const body  = newBodyEl.value.trim();
 
-        msgs.forEach((m) => {
-          const div = document.createElement("div");
-          div.className = "support-message-row " + (m.sender === "ADMIN" ? "admin" : "user");
-          div.innerHTML = `
-            <div class="support-message-meta">
-              ${m.sender === "ADMIN" ? "サポート" : "あなた"} ／ ${fmtDate(m.createdAt)}
-            </div>
-            <div class="support-message-body">
-              ${m.message}
-            </div>
-          `;
-          messageListEl.appendChild(div);
-        });
-      } catch (e) {
-        console.error(e);
-        messageListEl.innerHTML =
-          '<div class="muted" style="padding:8px 0;">メッセージ取得に失敗しました。</div>';
-      }
-    }
+  if (!title || !body) {
+    alert("件名と内容を入力してください。");
+    return;
+  }
 
-    async function createTicket() {
-      const title = newTitleEl.value.trim();
-      const body  = newBodyEl.value.trim();
-      if (!title || !body) {
-        showStatus("件名と内容を入力してください。", false);
-        return;
-      }
-      try {
-        await apiPost("/tickets", { title, message: body });
-        newTitleEl.value = "";
-        newBodyEl.value  = "";
-        showStatus("チケットを作成しました。");
-        await loadTickets();
-      } catch (e) {
-        console.error(e);
-        showStatus("チケット作成に失敗しました。", false);
-      }
-    }
+  await apiPost("/tickets", { title, message: body });
 
-    async function sendReply() {
-      if (!currentTicketId) {
-        showStatus("まず左からチケットを選択してください。", false);
-        return;
-      }
-      const body = replyBodyEl.value.trim();
-      if (!body) {
-        showStatus("返信内容を入力してください。", false);
-        return;
-      }
-      try {
-        await apiPost(`/tickets/${currentTicketId}/reply`, { message: body });
-        replyBodyEl.value = "";
-        showStatus("返信を送信しました。");
-        await loadMessages(currentTicketId);
-      } catch (e) {
-        console.error(e);
-        showStatus("返信送信に失敗しました。", false);
-      }
-    }
+  newTitleEl.value = "";
+  newBodyEl.value  = "";
 
-    if (newSendBtn) {
-      newSendBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        createTicket();
-      });
-    }
+  alert("お問い合わせを送信しました。");
 
-    if (replySendBtn) {
-      replySendBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        sendReply();
-      });
-    }
+  await loadTickets();
+}
 
-    (function initSupport() {
-      loadTickets().catch((e) => {
-        console.error(e);
-        showStatus("チケット一覧の取得に失敗しました。ログイン状態を確認してください。", false);
-      });
-    })();
-  </script>
+// ===== Load Messages =====
+
+async function loadMessages() {
+  const msgs = await apiGet(`/tickets/${currentTicketId}/messages`);
+
+  chatWindowEl.innerHTML = "";
+
+  msgs.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "chat-msg " + (m.sender === "ADMIN" ? "admin" : "user");
+    div.innerHTML = `
+      <div class="chat-meta">${m.sender} ／ ${new Date(m.createdAt).toLocaleString("ja-JP")}</div>
+      <div class="chat-body">${m.message}</div>
+    `;
+    chatWindowEl.appendChild(div);
+  });
+}
+
+// ===== Send Message =====
+
+async function sendMessage() {
+  const msg = chatInputEl.value.trim();
+  if (!msg) return;
+
+  await apiPost(`/tickets/${currentTicketId}/reply`, { message: msg });
+  chatInputEl.value = "";
+
+  loadMessages();
+}
+
+// ===== Event listeners =====
+
+if (newSendBtn) newSendBtn.addEventListener("click", createTicket);
+if (chatSendBtn) chatSendBtn.addEventListener("click", sendMessage);
+
+// ===== Init =====
+loadTickets();
+</script>
+
 </body>
 </html>

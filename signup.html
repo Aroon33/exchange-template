@@ -105,62 +105,76 @@
 
   <!-- API連携スクリプト -->
   <script>
-    const API_BASE_URL = "https://api.exchange-template.com";
+  const API_BASE_URL = "https://api.exchange-template.com";
 
-    const btn = document.getElementById("signup-button");
-    const message = document.getElementById("signup-message");
+  const btn = document.getElementById("signup-button");
+  const message = document.getElementById("signup-message");
 
-    btn.addEventListener("click", async () => {
-      const email = document.getElementById("signup-email").value.trim();
-      const password = document.getElementById("signup-password").value.trim();
+  btn.addEventListener("click", async () => {
+    const lastname  = document.getElementById("signup-lastname").value.trim();
+    const firstname = document.getElementById("signup-firstname").value.trim();
+    const email     = document.getElementById("signup-email").value.trim();
+    const password  = document.getElementById("signup-password").value.trim();
+    const country   = document.getElementById("signup-country").value;
+    const refcode   = document.getElementById("signup-refcode").value.trim();
+    const tosOK     = document.getElementById("signup-tos").checked;
 
-      if (!email || !password) {
-        message.textContent = "メールアドレスとパスワードは必須です。";
-        return;
+    if (!email || !password) {
+      message.textContent = "メールアドレスとパスワードは必須です。";
+      return;
+    }
+    if (!tosOK) {
+      message.textContent = "利用規約に同意してください。";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "送信中...";
+
+    try {
+      // URLパラメータから ?ref=123 を取得
+      const url = new URL(window.location.href);
+      const ref = url.searchParams.get("ref");
+
+      const payload = {
+        email,
+        password,
+        name: lastname + " " + firstname,
+        country,
+        referral: ref ? Number(ref) : null,  // ← refがあれば送信
+        code: refcode || null                // ← 任意コード
+      };
+
+      const res = await fetch(API_BASE_URL + "/auth/register", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "登録に失敗しました");
       }
 
-      if (!document.getElementById("signup-tos").checked) {
-        message.textContent = "利用規約に同意してください。";
-        return;
-      }
+      message.textContent = "登録成功: " + email;
+      message.style.color = "green";
 
-      btn.disabled = true;
-      btn.textContent = "送信中...";
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1500);
 
-      try {
-        const res = await fetch(API_BASE_URL + "/auth/register", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: email,
-            password: password,
-            name: document.getElementById("signup-lastname").value + " " +
-                  document.getElementById("signup-firstname").value
-          })
-        });
+    } catch (err) {
+      message.textContent = err.message;
+      message.style.color = "red";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "口座開設を申し込む";
+    }
+  });
+</script>
 
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.message || "登録に失敗しました");
-
-        message.textContent = "登録成功: " + data.email;
-        message.style.color = "green";
-
-        // 成功したらログインページへ移動
-        setTimeout(() => {
-          window.location.href = "login.html";
-        }, 1500);
-
-      } catch (err) {
-        message.textContent = err.message;
-        message.style.color = "red";
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "口座開設を申し込む";
-      }
-    });
-  </script>
 
 </body>
 </html>

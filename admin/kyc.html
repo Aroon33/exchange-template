@@ -2,450 +2,197 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>CryptoX Admin - KYC確認</title>
+  <title>CryptoX Admin - KYC管理</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- 共通 + Admin 専用CSS -->
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
-  <!-- Sidebar -->
+
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-title">メニュー</div>
     <ul class="nav-list">
-      <li class="nav-item"><a href="index.html" class="nav-link"><span class="nav-icon">🏠</span><span>ダッシュボード</span></a></li>
-      <li class="nav-item"><a href="tickets.html" class="nav-link"><span class="nav-icon">💬</span><span>問い合わせ管理</span></a></li>
-      <li class="nav-item"><a href="users.html" class="nav-link"><span class="nav-icon">👥</span><span>ユーザー一覧</span></a></li>
-      <li class="nav-item"><a href="kyc.html" class="nav-link active"><span class="nav-icon">🪪</span><span>KYC確認</span></a></li>
-      <li class="nav-item"><a href="trades.html" class="nav-link"><span class="nav-icon">📊</span><span>取引状況</span></a></li>
-      <li class="nav-item"><a href="deposit.html" class="nav-link"><span class="nav-icon">➕</span><span>入金申請</span></a></li>
-      <li class="nav-item"><a href="withdraw.html" class="nav-link"><span class="nav-icon">➖</span><span>出金申請</span></a></li>
-      <li class="nav-item"><a href="group.html" class="nav-link"><span class="nav-icon">🧩</span><span>グループ管理</span></a></li>
-      <li class="nav-item"><a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span><span>システム設定</span></a></li>
+      <li class="nav-item"><a href="index.html" class="nav-link">🏠 ダッシュボード</a></li>
+      <li class="nav-item"><a href="tickets.html" class="nav-link">💬 問い合わせ管理</a></li>
+      <li class="nav-item"><a href="users.html" class="nav-link">👥 ユーザー一覧</a></li>
+      <li class="nav-item"><a href="trades.html" class="nav-link">📊 取引状況</a></li>
+      <li class="nav-item"><a href="kyc.html" class="nav-link active">📋 KYC状況</a></li>
+      <li class="nav-item"><a href="deposit.html" class="nav-link">➕ 入金申請</a></li>
+      <li class="nav-item"><a href="withdraw.html" class="nav-link">➖ 出金申請</a></li>
+      <li class="nav-item"><a href="group.html" class="nav-link">🧩 グループ管理</a></li>
+      <li class="nav-item"><a href="settings.html" class="nav-link">⚙️ システム設定</a></li>
     </ul>
-    <div class="sidebar-footer">
-      CryptoX Admin<br>UI Demo &copy; 2025
-    </div>
   </aside>
 
-  <!-- Header -->
+  <!-- HEADER -->
   <header class="admin-header">
     <div class="admin-header-left">
       <div class="admin-logo-badge">AX</div>
       <div>
         <div class="admin-logo-text">Admin Console</div>
-        <div class="admin-logo-sub">KYC確認</div>
+        <div class="admin-logo-sub">KYC管理</div>
       </div>
-    </div>
-    <div class="admin-header-right">
-      <span>管理者：admin@example.com</span>
-      <button class="btn btn-outline btn-sm" onclick="location.href='../login.html'">ログアウト（デモ）</button>
     </div>
   </header>
 
-  <!-- Main -->
+  <!-- MAIN -->
   <main class="admin-main">
     <div class="admin-main-inner">
-      <div class="page-title">KYC確認</div>
-      <div class="page-sub">
-        提出された本人確認情報を確認し、6段階の判定ステータスを付与するための管理画面<br />
-        ステータス：全てNG / セルフィーNG / 住所証明NG / 本人確認書類NG / 全てOK / 1〜5 OK
+
+      <div class="page-title">KYC申請一覧</div>
+
+      <!-- フィルター -->
+      <div style="margin:12px 0;">
+        <select id="status-filter" class="btn-sm">
+          <option value="ALL">すべて</option>
+          <option value="0">未提出 / NONE</option>
+          <option value="1">提出済み</option>
+          <option value="2">審査中</option>
+          <option value="3">承認（一次）</option>
+          <option value="4">否認</option>
+          <option value="5">完了</option>
+        </select>
+        <button class="btn-sm" id="reload-btn">再読み込み</button>
       </div>
 
-      <!-- Filters -->
-      <section class="filters-card">
-        <div class="filters-row">
-          <div>
-            <div class="filters-title">フィルター</div>
-            <div class="filters-meta">キーワード・ステータス・KYCレベルで絞り込みます。</div>
-          </div>
-          <div>
-            <button class="btn-xs" id="btn-clear">条件クリア</button>
-            <button class="btn-xs btn-xs-primary" id="btn-search">検索</button>
-          </div>
-        </div>
-        <div class="filters-grid">
-          <div class="field">
-            <label>キーワード（名前・ユーザーID）</label>
-            <input type="text" id="f-keyword" placeholder="例：Taro / user-demo-001" />
-          </div>
-          <div class="field">
-            <label>KYCレベル</label>
-            <select id="f-level">
-              <option value="all">すべて</option>
-              <option value="1">レベル1</option>
-              <option value="2">レベル2</option>
-              <option value="3">レベル3</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>判定ステータス</label>
-            <select id="f-status">
-              <option value="all">すべて</option>
-              <option value="all_ng">全てNG</option>
-              <option value="selfie_ng">セルフィーがNG</option>
-              <option value="address_ng">住所証明がNG</option>
-              <option value="id_ng">本人確認書類がNG</option>
-              <option value="all_ok">全てOK</option>
-              <option value="steps_ok">1〜5 OK</option>
-            </select>
-          </div>
-        </div>
-      </section>
+      <!-- TABLE -->
+      <div class="card">
+        <table class="table" style="width:100%; font-size:13px;">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>申請日時</th>
+              <th>名前</th>
+              <th>表面画像</th>
+              <th>裏面画像</th>
+              <th>更新日時</th>
+              <th>ステータス</th>
+              <th>変更</th>
+            </tr>
+          </thead>
+          <tbody id="kyc-table-body">
+            <tr><td colspan="8" style="text-align:center;color:#777;">読み込み中...</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-      <!-- List + Detail -->
-      <section class="pane-grid">
-        <!-- List -->
-        <div class="card">
-          <div class="card-header-row">
-            <div>
-              <div class="card-title-small">KYC申請一覧</div>
-              <div class="card-sub-small" id="list-count">0件</div>
-            </div>
-            <button class="btn-xs" id="btn-refresh">再読み込み</button>
-          </div>
-          <div class="list-box" id="kyc-list"></div>
-        </div>
-
-        <!-- Detail -->
-        <div class="card">
-          <div class="detail-header">
-            <div>
-              <div class="detail-title" id="detail-title">申請を選択してください</div>
-              <div class="detail-meta" id="detail-meta">
-                左の一覧から申請を選択すると、提出内容とステータスを確認できます。
-              </div>
-            </div>
-            <div>
-              <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">判定ステータス</div>
-              <select class="status-select" id="status-select" disabled>
-                <option value="all_ng">全てNG</option>
-                <option value="selfie_ng">セルフィーがNG</option>
-                <option value="address_ng">住所証明がNG</option>
-                <option value="id_ng">本人確認書類がNG</option>
-                <option value="all_ok">全てOK</option>
-                <option value="steps_ok">1〜5 OK</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="info-grid">
-            <div class="info-block">
-              <div class="info-label">ユーザー情報</div>
-              <div class="info-value" id="info-name">-</div>
-              <div class="info-row" id="info-userid">ユーザーID: -</div>
-              <div class="info-row" id="info-email">メール: -</div>
-              <div class="info-row" id="info-level">申請レベル: -</div>
-              <div class="info-row" id="info-created">申請日時: -</div>
-            </div>
-            <div class="info-block">
-              <div class="info-label">書類ごとの判定</div>
-              <div class="check-list">
-                <div class="check-item" id="check-selfie">セルフィー: -</div>
-                <div class="check-item" id="check-id">本人確認書類: -</div>
-                <div class="check-item" id="check-address">住所証明: -</div>
-              </div>
-              <div class="info-row" id="info-updated">最終更新: -</div>
-            </div>
-          </div>
-
-          <div class="toolbar" id="toolbar" style="display:none;">
-            <button class="btn-xs btn-xs-primary" id="btn-apply">ステータスを更新</button>
-          </div>
-          <div class="note">
-            ※ このページはフロントエンドのみのデモです。<br />
-            実際の環境では、APIを通じてKYC審査結果をバックエンドへ保存し、ユーザーのKYCレベルと連動させる想定です。
-          </div>
-        </div>
-      </section>
     </div>
   </main>
 
   <div class="toast" id="toast"></div>
 
-  <script>
-    const KYC_KEY = "cx_kyc_requests";
+<script>
+  const API_BASE = "https://api.exchange-template.com";
+  let allKyc = [];
 
-    const statusLabels = {
-      all_ng: "全てNG",
-      selfie_ng: "セルフィーがNG",
-      address_ng: "住所証明がNG",
-      id_ng: "本人確認書類がNG",
-      all_ok: "全てOK",
-      steps_ok: "1〜5 OK",
-      pending: "未レビュー",
-    };
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2000);
+  }
 
-    const levelLabels = {
-      1: "レベル1",
-      2: "レベル2",
-      3: "レベル3",
-    };
+  function formatDate(s) {
+    if (!s) return "-";
+    return new Date(s).toLocaleString("ja-JP", { hour12:false });
+  }
 
-    const listEl         = document.getElementById("kyc-list");
-    const listCountEl    = document.getElementById("list-count");
-    const toastEl        = document.getElementById("toast");
-    const fKeyword       = document.getElementById("f-keyword");
-    const fLevel         = document.getElementById("f-level");
-    const fStatus        = document.getElementById("f-status");
-    const btnSearch      = document.getElementById("btn-search");
-    const btnClear       = document.getElementById("btn-clear");
-    const btnRefresh     = document.getElementById("btn-refresh");
+  async function apiGet(path) {
+    const res = await fetch(API_BASE + path, { credentials:"include" });
+    const txt = await res.text();
+    if (!res.ok) throw new Error(txt);
+    return JSON.parse(txt);
+  }
 
-    const detailTitleEl  = document.getElementById("detail-title");
-    const detailMetaEl   = document.getElementById("detail-meta");
-    const statusSelectEl = document.getElementById("status-select");
-    const btnApply       = document.getElementById("btn-apply");
-    const toolbarEl      = document.getElementById("toolbar");
-
-    const infoNameEl     = document.getElementById("info-name");
-    const infoUserIdEl   = document.getElementById("info-userid");
-    const infoEmailEl    = document.getElementById("info-email");
-    const infoLevelEl    = document.getElementById("info-level");
-    const infoCreatedEl  = document.getElementById("info-created");
-    const infoUpdatedEl  = document.getElementById("info-updated");
-
-    const checkSelfieEl  = document.getElementById("check-selfie");
-    const checkIdEl      = document.getElementById("check-id");
-    const checkAddressEl = document.getElementById("check-address");
-
-    let allKyc   = [];
-    let filtered = [];
-    let currentId = null;
-
-    function showToast(msg) {
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      setTimeout(() => toastEl.classList.remove("show"), 2200);
-    }
-
-    function loadKyc() {
-      try {
-        const raw = localStorage.getItem(KYC_KEY);
-        if (!raw) return seedKyc();
-        const data = JSON.parse(raw);
-        return Array.isArray(data) ? data : seedKyc();
-      } catch (e) {
-        console.error(e);
-        return seedKyc();
-      }
-    }
-
-    function seedKyc() {
-      const now = Date.now();
-      const data = [
-        {
-          id: "kyc_001",
-          userId: "user-demo-001",
-          name: "Taro Yamada",
-          email: "taro@example.com",
-          level: 2,
-          status: "selfie_ng",
-          selfie: "NG",
-          idDoc: "OK",
-          address: "OK",
-          createdAt: now - 3600 * 1000 * 5,
-          updatedAt: now - 3600 * 1000 * 3,
-        },
-        {
-          id: "kyc_002",
-          userId: "user-demo-002",
-          name: "Hanako Suzuki",
-          email: "hanako@example.com",
-          level: 1,
-          status: "pending",
-          selfie: "PENDING",
-          idDoc: "PENDING",
-          address: "PENDING",
-          createdAt: now - 3600 * 1000 * 2,
-          updatedAt: now - 3600 * 1000 * 2,
-        },
-        {
-          id: "kyc_003",
-          userId: "user-demo-003",
-          name: "Crypto Tester",
-          email: "tester@example.com",
-          level: 3,
-          status: "all_ok",
-          selfie: "OK",
-          idDoc: "OK",
-          address: "OK",
-          createdAt: now - 3600 * 1000 * 48,
-          updatedAt: now - 3600 * 1000 * 24,
-        },
-      ];
-      localStorage.setItem(KYC_KEY, JSON.stringify(data));
-      return data;
-    }
-
-    function applyFilters() {
-      const kw = fKeyword.value.trim().toLowerCase();
-      const lv = fLevel.value;
-      const st = fStatus.value;
-
-      filtered = allKyc.filter((k) => {
-        if (kw) {
-          const hay =
-            (k.name || "").toLowerCase() +
-            " " +
-            (k.userId || "").toLowerCase();
-          if (!hay.includes(kw)) return false;
-        }
-        if (lv !== "all" && String(k.level) !== lv) return false;
-        if (st !== "all" && k.status !== st) return false;
-        return true;
-      });
-
-      filtered.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-      renderList();
-    }
-
-    function renderList() {
-      listEl.innerHTML = "";
-      listCountEl.textContent = filtered.length + "件";
-
-      if (filtered.length === 0) {
-        listEl.innerHTML =
-          '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:30px 4px;">該当するKYC申請はありません。</div>';
-        currentId = null;
-        renderDetail();
-        return;
-      }
-
-      filtered.forEach((k) => {
-        const row = document.createElement("div");
-        row.className = "kyc-row" + (k.id === currentId ? " active" : "");
-        row.dataset.id = k.id;
-
-        const stKey = k.status || "pending";
-        const badgeClass =
-          stKey === "all_ok" || stKey === "steps_ok"
-            ? "badge-status-all_ok"
-            : stKey === "selfie_ng"
-            ? "badge-status-selfie_ng"
-            : stKey === "address_ng"
-            ? "badge-status-address_ng"
-            : stKey === "id_ng"
-            ? "badge-status-id_ng"
-            : "badge-status-all_ng";
-
-        const label =
-          statusLabels[stKey] || (stKey === "pending" ? "未レビュー" : stKey);
-
-        row.innerHTML = `
-          <div>
-            <div class="user-name">${k.name}</div>
-            <div class="user-id">${k.userId}</div>
-          </div>
-          <div>
-            <span class="badge ${badgeClass}">${label}</span>
-          </div>
-          <div class="user-id">
-            ${levelLabels[k.level] || "-"}
-          </div>
-        `;
-
-        row.addEventListener("click", () => {
-          currentId = k.id;
-          renderList();
-          renderDetail();
-        });
-
-        listEl.appendChild(row);
-      });
-
-      if (!currentId && filtered.length > 0) {
-        currentId = filtered[0].id;
-        renderList();
-        renderDetail();
-      }
-    }
-
-    function renderDetail() {
-      const k = allKyc.find((x) => x.id === currentId);
-      if (!k) {
-        detailTitleEl.textContent = "申請を選択してください";
-        detailMetaEl.textContent =
-          "左の一覧から申請を選択すると、提出内容とステータスを確認できます。";
-        infoNameEl.textContent      = "-";
-        infoUserIdEl.textContent    = "ユーザーID: -";
-        infoEmailEl.textContent     = "メール: -";
-        infoLevelEl.textContent     = "申請レベル: -";
-        infoCreatedEl.textContent   = "申請日時: -";
-        infoUpdatedEl.textContent   = "最終更新: -";
-        checkSelfieEl.textContent   = "セルフィー: -";
-        checkIdEl.textContent       = "本人確認書類: -";
-        checkAddressEl.textContent  = "住所証明: -";
-        statusSelectEl.disabled     = true;
-        toolbarEl.style.display     = "none";
-        return;
-      }
-
-      detailTitleEl.textContent = `${k.name} のKYC申請`;
-      const created = k.createdAt
-        ? new Date(k.createdAt).toLocaleString("ja-JP",{hour12:false})
-        : "-";
-      const updated = k.updatedAt
-        ? new Date(k.updatedAt).toLocaleString("ja-JP",{hour12:false})
-        : "-";
-
-      detailMetaEl.innerHTML =
-        `<span>ユーザーID: ${k.userId}</span>` +
-        `<span>レベル: ${levelLabels[k.level] || "-"}</span>`;
-
-      infoNameEl.textContent    = k.name;
-      infoUserIdEl.textContent  = "ユーザーID: " + k.userId;
-      infoEmailEl.textContent   = "メール: " + (k.email || "-");
-      infoLevelEl.textContent   = "申請レベル: " + (levelLabels[k.level] || "-");
-      infoCreatedEl.textContent = "申請日時: " + created;
-      infoUpdatedEl.textContent = "最終更新: " + updated;
-
-      checkSelfieEl.textContent  = "セルフィー: " + (k.selfie || "-");
-      checkIdEl.textContent      = "本人確認書類: " + (k.idDoc || "-");
-      checkAddressEl.textContent = "住所証明: " + (k.address || "-");
-
-      statusSelectEl.value   = k.status && k.status !== "pending" ? k.status : "all_ng";
-      statusSelectEl.disabled = false;
-      toolbarEl.style.display = "block";
-    }
-
-    function applyStatus() {
-      const k = allKyc.find((x) => x.id === currentId);
-      if (!k) return;
-      const newStatus = statusSelectEl.value;
-      const oldStatus = k.status;
-
-      if (oldStatus === newStatus) {
-        showToast("ステータスは変更されていません。");
-        return;
-      }
-
-      k.status    = newStatus;
-      k.updatedAt = Date.now();
-
-      localStorage.setItem(KYC_KEY, JSON.stringify(allKyc));
-      showToast(`KYCステータスを「${statusLabels[newStatus]}」に更新しました。`);
-      applyFilters();
-      renderDetail();
-    }
-
-    btnSearch.addEventListener("click", applyFilters);
-    btnClear.addEventListener("click", () => {
-      fKeyword.value = "";
-      fLevel.value   = "all";
-      fStatus.value  = "all";
-      applyFilters();
+  async function apiPost(path, body) {
+    const res = await fetch(API_BASE + path, {
+      method:"POST",
+      credentials:"include",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(body)
     });
-    btnRefresh.addEventListener("click", () => {
-      allKyc = loadKyc();
-      applyFilters();
-    });
-    btnApply.addEventListener("click", applyStatus);
+    const txt = await res.text();
+    if (!res.ok) throw new Error(txt);
+    return JSON.parse(txt);
+  }
 
-    allKyc = loadKyc();
-    applyFilters();
-  </script>
+  async function changeStatus(id) {
+    const level = Number(prompt("新しいステータス（0〜5）を入力："));
+    if (isNaN(level) || level < 0 || level > 5) {
+      showToast("無効なステータスです");
+      return;
+    }
+
+    try {
+      await apiPost("/kyc/admin/set-status", { id, level });
+      showToast("更新しました");
+      loadKyc();
+    } catch(e) {
+      showToast("更新失敗");
+    }
+  }
+
+  function renderTable(list) {
+    const tbody = document.getElementById("kyc-table-body");
+    tbody.innerHTML = "";
+
+    if (!list.length) {
+      tbody.innerHTML =
+        `<tr><td colspan="8" style="text-align:center;color:#777;">なし</td></tr>`;
+      return;
+    }
+
+    list.forEach(k => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${k.id}</td>
+        <td>${formatDate(k.createdAt)}</td>
+        <td>${k.name ?? "-"}</td>
+        <td>
+          ${k.frontUrl ? `<a href="${k.frontUrl}" target="_blank">表示</a>` : "-"}
+        </td>
+        <td>
+          ${k.backUrl ? `<a href="${k.backUrl}" target="_blank">表示</a>` : "-"}
+        </td>
+        <td>${formatDate(k.updatedAt)}</td>
+        <td>${k.statusText}</td>
+        <td>
+          <button class="btn-xs btn-xs-primary" onclick="changeStatus(${k.id})">
+            更新
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function applyFilter() {
+    const f = document.getElementById("status-filter").value;
+    if (f === "ALL") {
+      renderTable(allKyc);
+    } else {
+      renderTable(allKyc.filter(k => String(k.level) === f));
+    }
+  }
+
+  async function loadKyc() {
+    try {
+      allKyc = await apiGet("/kyc/admin/list");
+      applyFilter();
+    } catch (e) {
+      showToast("取得失敗");
+    }
+  }
+
+  document.getElementById("status-filter").addEventListener("change", applyFilter);
+  document.getElementById("reload-btn").addEventListener("click", loadKyc);
+
+  loadKyc();
+</script>
+
 </body>
 </html>
-
